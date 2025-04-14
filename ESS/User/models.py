@@ -40,6 +40,9 @@ class User(AbstractUser):
     def __str__(self):
         return f'{self.username} - {self.email}'
 
+class OtpCode(models.Model):
+    phone_number = models.CharField(max_length=11, unique=True)
+    code = models.PositiveSmallIntegerField(unique=True)
 
-
-
+    def __str__(self):
+        return f'{self.phone_number} - {self.code}'

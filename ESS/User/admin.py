@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as UserBaseAdmin
-from User.models import User
+from User.models import User, OtpCode
 
 
 class UserAdmin(UserBaseAdmin):
@@ -9,7 +9,6 @@ class UserAdmin(UserBaseAdmin):
     list_filter = ('is_admin',)
     readonly_fields = ('last_login',)
     ordering = ('email',)
-
 
 
     fieldsets = (
@@ -32,3 +31,4 @@ class UserAdmin(UserBaseAdmin):
         return form
 
 admin.site.register(User, UserAdmin)
+admin.site.register(OtpCode)

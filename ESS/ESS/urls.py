@@ -6,4 +6,5 @@ urlpatterns = [
     path('user/', include('User.urls', namespace='User')),
     path('message/', include('Message.urls', namespace='Message')),
     path('contact/', include('Contacts.urls', namespace='Contact')),
+    path('home/', include('home.urls', namespace='Home')),
 ]
