@@ -27,3 +27,6 @@ class UserRegistrationForm(forms.ModelForm):
 class UserLoginForm(forms.Form):
     email = forms.EmailField()
     phone_number = forms.CharField(max_length=11, widget=forms.NumberInput)
+
+class UserVerifyForm(forms.Form):
+    code = forms.IntegerField(min_value=1000, max_value=9999)

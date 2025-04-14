@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
-from .forms import UserRegistrationForm, UserLoginForm
+from .forms import UserRegistrationForm, UserLoginForm, UserVerifyForm
 from django.contrib import messages
 from .models import User, OtpCode
 from django.utils.decorators import method_decorator
@@ -37,14 +37,34 @@ class UserRegistrationView(View):
             send_otp_code(cd['phone_number'], random_number)
             OtpCode.objects.create(phone_number=cd['phone_number'], code=random_number)
             messages.success(request, 'OTP code sent successfully', 'success')
-            return redirect('home:home')
+            return redirect('User:user-register-verify')
 
+class UserRegistrationVerifyView(View):
+    form_class = UserVerifyForm
+    template_name = 'User/verify.html'
 
+    @method_decorator(csrf_protect)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
-            user = User.objects.create_user(email=cd['email'], first_name=cd['first_name'], last_name=cd['last_name'], phone_number=cd['phone_number'])
-            messages.success(request, 'User created successfully')
-            return render(request, self.template_name, {'form': form})
+    def get(self, request):
+        form = self.form_class()
         return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        user_session = request.session['user_registration_info']
+        code_instance = OtpCode.objects.get(phone_number=user_session['phone_number'])
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            if form.cleaned_data['code'] == code_instance.code:
+                User.objects.create_user(**user_session)
+                messages.success(request, 'registered successfully', 'success')
+                code_instance.delete()
+                return redirect('home:home')
+            else:
+                messages.error(request, 'code is wrong', 'error')
+                return redirect('home:user-login-verify')
+        return redirect('home:home')
 
 class UserLoginView(View):
     form_class = UserLoginForm
@@ -64,15 +84,17 @@ class UserLoginView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            user = User.objects.get(email=cd['email'])
-            if user:
-                login(request, user)
-                messages.success(request, 'User logged in', 'success')
-                return redirect('home:home')
-            else:
-                messages.error(request, 'User with this email not exist', 'error')
-                return redirect('home:home')
-        return render(request, self.template_name, {'form': form})
+            request.session['login_info'] = {
+                'phone_number': cd['phone_number'],
+                'email': cd['email'],
+            }
+            random_number = random.randint(1000, 9999)
+            send_otp_code(cd['phone_number'], random_number)
+            OtpCode.objects.create(phone_number=cd['phone_number'], code=random_number)
+            messages.success(request, 'OTP code sent successfully', 'success')
+            return redirect('User:user-login-verify')
+        return redirect('User:login')
+
 
 class UserLogoutView(LoginRequiredMixin, View):
     def get(self, request):
