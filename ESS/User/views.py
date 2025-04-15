@@ -39,6 +39,7 @@ class UserRegistrationView(View):
             messages.success(request, 'OTP code sent successfully', 'success')
             return redirect('User:user-register-verify')
 
+
 class UserRegistrationVerifyView(View):
     form_class = UserVerifyForm
     template_name = 'User/verify.html'
@@ -56,6 +57,10 @@ class UserRegistrationVerifyView(View):
         code_instance = OtpCode.objects.get(phone_number=user_session['phone_number'])
         form = self.form_class(request.POST)
         if form.is_valid():
+            if code_instance.is_expired():
+                messages.error(request, 'OTP code expired', 'error')
+                code_instance.delete()
+                return redirect('User:user-register')
             if form.cleaned_data['code'] == code_instance.code:
                 User.objects.create_user(**user_session)
                 messages.success(request, 'registered successfully', 'success')
@@ -63,8 +68,9 @@ class UserRegistrationVerifyView(View):
                 return redirect('home:home')
             else:
                 messages.error(request, 'code is wrong', 'error')
-                return redirect('home:user-login-verify')
+                return redirect('User:user-register-verify')
         return redirect('home:home')
+
 
 class UserLoginView(View):
     form_class = UserLoginForm
@@ -94,6 +100,39 @@ class UserLoginView(View):
             messages.success(request, 'OTP code sent successfully', 'success')
             return redirect('User:user-login-verify')
         return redirect('User:login')
+
+
+class UserLoginVerifyView(View):
+    form_class = UserVerifyForm
+    template_name = 'User/verify.html'
+
+    @method_decorator(csrf_protect)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        user_session = request.session['login_info']
+        code_instance = OtpCode.objects.get(phone_number=user_session['phone_number'])
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            if code_instance.is_expired():
+                messages.error(request, 'OTP code expired', 'error')
+                code_instance.delete()
+                return redirect('User:user-login')
+            if form.cleaned_data['code'] == code_instance.code:
+                user = User.objects.get(email=user_session['email'])
+                login(request, user)
+                code_instance.delete()
+                messages.success(request, 'Logged in Successfully', 'success')
+                return redirect('home:home')
+            else:
+                messages.error(request, 'code is wrong', 'error')
+                return redirect('User:user-login-verify')
+        return redirect('User:user-login-verify')
 
 
 class UserLogoutView(LoginRequiredMixin, View):
