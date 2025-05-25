@@ -132,3 +132,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'User.User'
 
 LOGIN_REDIRECT_URL = 'home:home'
+
+
+# Email Config
+EMAIL_SMTP_SERVER = 'smtp.gmail.com'
+EMAIL_SMTP_PORT = 465  # Port for SMTP (465 for SSL, 587 for TLS)
+EMAIL_TIMEOUT = 30
+DEFAULT_FROM_EMAIL = 'cjkhudacj@gmail.com'  # Default sender email address
+EMAIL_HOST_USER = 'cjkhudacj@gmail.com'  # SMTP username (usually your email)
+EMAIL_HOST_PASSWORD = 'zxtq pxxf gcjq brvf'
+
+
+# RabbitMQ settings
+RABBITMQ_HOST = 'localhost'  # or your RabbitMQ server address
+EMAIL_QUEUE = 'email_tasks'
+RABBITMQ_PORT = 5672
+RABBITMQ_USER = 'guest'
+RABBITMQ_PASS = 'guest'
