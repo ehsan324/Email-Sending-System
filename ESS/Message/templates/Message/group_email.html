@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="limiter">
+    <div class="container-login100">
+        <div class="wrap-login100">
+            <div class="login100-pic js-tilt" data-tilt>
+                <img src="{% static 'Login_v1/images/email-icon.png' %}" alt="IMG">
+            </div>
+
+            <form class="login100-form validate-form" method="post" id="bulkEmailForm" novalidate>
+                {% csrf_token %}
+                <span class="login100-form-title" style="font-family: 'Poppins', sans-serif;">
+                    Bulk Email Sender
+                </span>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="font-family: 'Open Sans', sans-serif;">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="wrap-input100 validate-input" data-validate="Please select at least one group">
+                    <label class="form-label" style="font-family: 'Open Sans', sans-serif;">Select Groups</label>
+                    <select name="groups" id="groups" class="form-select" multiple required style="font-family: 'Open Sans', sans-serif;">
+                        {% for group in groups %}
+                            <option value="{{ group.id }}">
+                                {{ group.name }} ({{ group.contacts.count }} contacts)
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="wrap-input100 validate-input">
+                    {{ field }}
+                    <span class="focus-input100"></span>
+                    <span class="symbol-input100">
+                        <i class="fa fa-{{ field.name }}" aria-hidden="true"></i>
+                    </span>
+                    {% if field.errors %}
+                    <div class="text-danger">
+                        {{ field.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+
+                <div class="wrap-input100 validate-input" data-validate="Email content is required">
+                    <label class="form-label" style="font-family: 'Open Sans', sans-serif;">Email Content</label>
+                    {{ form.body }}
+                    <span class="focus-input100"></span>
+                </div>
+
+                <div class="container-login100-form-btn">
+                    <button type="submit" class="login100-form-btn" style="font-family: 'Poppins', sans-serif;">
+                        <i class="fa fa-paper-plane mr-2"></i> Send Emails
+                    </button>
+                </div>
+
+                <div class="text-center p-t-12">
+                    <a class="txt2" href="#" data-bs-toggle="modal" data-bs-target="#helpModal" style="font-family: 'Open Sans', sans-serif;">
+                        Bulk Email Guide
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-family: 'Poppins', sans-serif;">Bulk Email Guide</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="font-family: 'Open Sans', sans-serif;">
+                <ul>
+                    <li>Hold Ctrl/Cmd to select multiple groups</li>
+                    <li>Use the search box to quickly find specific groups</li>
+                    <li>A delivery report will be sent to your email after sending</li>
+                    <li>Recommended max recipients per batch: 500</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="font-family: 'Open Sans', sans-serif;">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'Login_v1/css/util.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'Login_v1/css/main.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6, .login100-form-title {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+        min-height: 45px;
+        border: none !important;
+        padding: 10px;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #6675df;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    textarea {
+        min-height: 200px;
+        resize: vertical;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .wrap-input100 label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    /* Illustration styling */
+    .login100-pic {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'Login_v1/vendor/jquery/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'Login_v1/vendor/tilt/tilt.jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $('.js-tilt').tilt({
+        scale: 1.1
+    });
+
+    $(document).ready(function() {
+        $('#groups').select2({
+            placeholder: "Select groups...",
+            allowClear: true,
+            width: '100%'
+        });
+
+        $('#bulkEmailForm').on('submit', function(e) {
+            const selectedGroups = $('#groups').val();
+            if (!selectedGroups || selectedGroups.length === 0) {
+                alert('Please select at least one group');
+                e.preventDefault();
+                return false;
+            }
+
+            if (confirm(`Are you sure you want to send this email to ${selectedGroups.length} groups?`)) {
+                return true;
+            } else {
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
+</script>
+{% endblock %}
