@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,7 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #local apps
+    # local apps
     'Contacts.apps.ContactsConfig',
     'Message.apps.MessageConfig',
     'User.apps.UserConfig',
@@ -48,7 +49,7 @@ ROOT_URLCONF = 'ESS.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -56,6 +57,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',  # Added for static files
             ],
         },
     },
@@ -109,38 +111,43 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Custom User defined
-AUTH_USER_MODEL = 'User.User'
-
-LOGIN_REDIRECT_URL = 'home:home'
-
-
-# Email Config
-EMAIL_SMTP_SERVER = 'smtp.gmail.com'
-EMAIL_SMTP_PORT = 465  # Port for SMTP (465 for SSL, 587 for TLS)
-EMAIL_TIMEOUT = 30
-DEFAULT_FROM_EMAIL = 'cjkhudacj@gmail.com'  # Default sender email address
-EMAIL_HOST_USER = 'cjkhudacj@gmail.com'  # SMTP username (usually your email)
-EMAIL_HOST_PASSWORD = 'zxtq pxxf gcjq brvf'
-
-
-# RabbitMQ settings
-RABBITMQ_HOST = 'localhost'  # or your RabbitMQ server address
-EMAIL_QUEUE = 'email_tasks'
-RABBITMQ_PORT = 5672
-RABBITMQ_USER = 'guest'
-RABBITMQ_PASS = 'guest'
-
-
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Custom User model
+AUTH_USER_MODEL = 'User.User'
+
+LOGIN_REDIRECT_URL = 'home:home'
+LOGOUT_REDIRECT_URL = 'home:home'
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587  # For TLS
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'cjkhudacj@gmail.com'
+EMAIL_HOST_PASSWORD = 'zxtq pxxf gcjq brvf'
+DEFAULT_FROM_EMAIL = 'cjkhudacj@gmail.com'
+
+# RabbitMQ settings
+RABBITMQ_HOST = 'localhost'
+RABBITMQ_PORT = 5672
+RABBITMQ_USER = 'guest'
+RABBITMQ_PASS = 'guest'
+EMAIL_QUEUE = 'email_tasks'
+
+# Security settings (for production you should set these)
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_SECURE = False     # Set to True in production with HTTPS
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
