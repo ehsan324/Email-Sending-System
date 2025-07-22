@@ -7,11 +7,14 @@ from django.contrib import messages
 
 class SendEmailView(View):
     def get(self,request):
+        recipient = request.POST.get('recipient', '')
+        subject = request.POST.get('subject', '')
+        message = request.POST.get('message', '')
         producer = EmailProducer()
         email_data = {
-            'recipient': 'e.aalami324@gmail.com',
-            'subject': 'Welcome to our platform',
-            'body': 'Thank you for registering!',
+            'recipient': recipient,
+            'subject': subject,
+            'body': message,
             # sender and password can be omitted if using defaults
         }
         producer.publish_email_request(email_data)

@@ -3,6 +3,7 @@ import smtplib
 import logging
 from email.message import EmailMessage
 from django.conf import settings
+from Message.email_producer import EmailProducer
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +79,19 @@ class EmailSender:
         except Exception as e:
             logger.error(f"Failed to send email to {recipient}: {str(e)}")
             raise EmailServiceError(f"Email sending failed: {str(e)}")
+
+# utils/email_service.py
+class EmailService:
+    @staticmethod
+    def send_email(recipient, subject, body):
+        producer = EmailProducer()
+        email_data = {
+            'recipient': recipient,
+            'subject': subject,
+            'body': body,
+        }
+        producer.publish_email_request(email_data)
+
 
 def send_otp_code(phone_number, code):
     pass

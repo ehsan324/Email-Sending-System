@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from .forms import TicketForm
 from django.contrib import messages
+from utils import EmailService
 
 class HomeView(View):
     def get(self, request):
@@ -17,7 +18,13 @@ class TicketView(View):
         if request.method == 'POST':
             form = TicketForm(request.POST)
             if form.is_valid():
-                form.save()
+                ticket = form.save()
+
+                EmailService.send_email(
+                    recipient=ticket.email,
+                    subject=ticket.subject,
+                    body=f'Hi {ticket.name} \n your ticket is created and snet to admin. Be patient until response'
+                )
                 messages.success(request, 'Your ticket has been created!', 'success')
                 return redirect('home:homes')
             else:
