@@ -66,9 +66,25 @@
 
   <main class="main">
 
+
       <!-- Hero Section -->
       <section id="hero" class="hero section">
+
+
           <div class="container">
+
+              <!-- System Messages -->
+              {% if messages %}
+              <div class="col-12">
+                  {% for message in messages %}
+                  <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show mb-4">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert"
+                              aria-label="Close"></button>
+                  </div>
+                  {% endfor %}
+              </div>
+              {% endif %}
               <div class="row">
                   <div class="col-lg-7 content-col" data-aos="fade-up">
                       <div class="content">
@@ -214,126 +230,229 @@
 <script src="{% static 'Strategy/assets/js/login.js' %}"></script>
 
       <!-- Register Section -->
-      <section id="Register" class="services section">
+<section id="Register" class="services section">
+    <!-- Section Title -->
+    <div class="container section-title" data-aos="fade-up">
+        <h2>Register</h2>
+        <div><span>Create Your</span> <span class="description-title">Account</span></div>
+    </div>
 
-          <!-- Section Title -->
-          <div class="container section-title" data-aos="fade-up">
-              <h2>Register</h2>
-              <div><span>Create Your</span> <span class="description-title">Account</span></div>
-          </div>
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="service-header">
+            <div class="row align-items-center">
+                <div class="col-lg-8 col-md-12">
+                    <div class="service-intro">
+                        <h2 class="service-heading">
+                            <div>Join our</div>
+                            <div><span>community</span></div>
+                        </h2>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <div class="service-summary">
+                        <p>
+                            Create your account to access exclusive features, personalized content, and connect
+                            with like-minded professionals in your industry.
+                        </p>
+                        <a href="#login" class="service-btn">
+                            Already have an account? Login
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-          <div class="container" data-aos="fade-up" data-aos-delay="100">
-              <div class="service-header">
-                  <div class="row align-items-center">
-                      <div class="col-lg-8 col-md-12">
-                          <div class="service-intro">
-                              <h2 class="service-heading">
-                                  <div>Join our</div>
-                                  <div><span>community</span></div>
-                              </h2>
-                          </div>
-                      </div>
-                      <div class="col-lg-4 col-md-12">
-                          <div class="service-summary">
-                              <p>
-                                  Create your account to access exclusive features, personalized content, and connect
-                                  with like-minded professionals in your industry.
-                              </p>
-                              <a href="#login" class="service-btn">
-                                  Already have an account? Login
-                                  <i class="bi bi-arrow-right"></i>
-                              </a>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-12" data-aos="fade-up" data-aos-delay="100">
+            <!-- Registration Form -->
+            <div id="registration-form-container" {% if show_verification %}class="d-none"{% endif %}>
+                <form class="register-form" method="post" action="{% url 'User:user-register' %}">
+                    {% csrf_token %}
 
-          <div class="row justify-content-center">
-              <div class="col-lg-8 col-md-12" data-aos="fade-up" data-aos-delay="100">
-                  <div class="register-form-container">
-                      <form class="register-form">
-                          <div class="row g-3">
-                              <div class="col-md-6">
-                                  <div class="form-group">
-                                      <div class="input-with-icon">
-                                          <i class="bi bi-person"></i>
-                                          <input type="text" class="form-control" id="firstName" name="firstName"
-                                                 placeholder="First Name" required>
-                                      </div>
-                                  </div>
-                              </div>
-                              <div class="col-md-6">
-                                  <div class="form-group">
-                                      <div class="input-with-icon">
-                                          <i class="bi bi-person"></i>
-                                          <input type="text" class="form-control" id="lastName" name="lastName"
-                                                 placeholder="Last Name" required>
-                                      </div>
-                                  </div>
-                              </div>
+                    <div class="row g-3">
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
 
-                              <div class="col-md-6">
-                                  <div class="form-group">
-                                      <div class="input-with-icon">
-                                          <i class="bi bi-envelope"></i>
-                                          <input type="email" class="form-control" id="email" name="email"
-                                                 placeholder="Email Address" required>
-                                      </div>
-                                  </div>
-                              </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="input-with-icon">
+                                    <i class="bi bi-person"></i>
+                                    <input type="text" class="form-control" id="firstName" name="first_name"
+                                           placeholder="First Name" required value="{{ form.first_name.value|default_if_none:'' }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="input-with-icon">
+                                    <i class="bi bi-person"></i>
+                                    <input type="text" class="form-control" id="lastName" name="last_name"
+                                           placeholder="Last Name" required value="{{ form.last_name.value|default_if_none:'' }}">
+                                </div>
+                            </div>
+                        </div>
 
-                              <div class="col-md-6">
-                                  <div class="form-group">
-                                      <div class="input-with-icon">
-                                          <i class="bi bi-phone"></i>
-                                          <input type="tel" class="form-control" id="phone" name="phone"
-                                                 placeholder="Phone Number" required>
-                                      </div>
-                                  </div>
-                              </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="input-with-icon">
+                                    <i class="bi bi-envelope"></i>
+                                    <input type="email" class="form-control" id="email" name="email"
+                                           placeholder="Email Address" required value="{{ form.email.value|default_if_none:'' }}">
+                                </div>
+                            </div>
+                        </div>
 
-                              <div class="col-md-6">
-                                  <div class="form-group">
-                                      <div class="input-with-icon">
-                                          <i class="bi bi-lock"></i>
-                                          <input type="password" class="form-control" id="password" name="password"
-                                                 placeholder="Password" required>
-                                      </div>
-                                  </div>
-                              </div>
-                              <div class="col-md-6">
-                                  <div class="form-group">
-                                      <div class="input-with-icon">
-                                          <i class="bi bi-lock"></i>
-                                          <input type="password" class="form-control" id="confirmPassword"
-                                                 name="confirmPassword" placeholder="Confirm Password" required>
-                                      </div>
-                                  </div>
-                              </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="input-with-icon">
+                                    <i class="bi bi-phone"></i>
+                                    <input type="tel" class="form-control" id="phone" name="phone_number"
+                                           placeholder="Phone Number" required value="{{ form.phone.value|default_if_none:'' }}">
+                                </div>
+                            </div>
+                        </div>
 
-                              <div class="col-12">
-                                  <div class="form-group form-check">
-                                      <input type="checkbox" class="form-check-input" id="terms" required>
-                                      <label class="form-check-label" for="terms">I agree to the <a href="#">Terms of
-                                          Service</a> and <a href="#">Privacy Policy</a></label>
-                                  </div>
-                              </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="input-with-icon">
+                                    <i class="bi bi-lock"></i>
+                                    <input type="password" class="form-control" id="password1" name="password"
+                                           placeholder="Password" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="input-with-icon">
+                                    <i class="bi bi-lock"></i>
+                                    <input type="password" class="form-control" id="password2"
+                                           name="password2" placeholder="Confirm Password" >
+                                </div>
+                            </div>
+                        </div>
 
-                              <div class="col-12 text-center">
-                                  <button type="submit" class="btn btn-primary btn-submit">
-                                      CREATE ACCOUNT
-                                      <i class="bi bi-arrow-right"></i>
-                                  </button>
-                              </div>
+                        <div class="col-12">
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                                <label class="form-check-label" for="terms">I agree to the <a href="#">Terms of
+                                    Service</a> and <a href="#">Privacy Policy</a></label>
+                            </div>
+                        </div>
 
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary btn-submit">
+                                CREATE ACCOUNT
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    </div>
+                </form>
+            </div>
 
-                          </div>
-                      </form>
-                  </div>
-              </div>
-          </div>
-          </div>
+            <!-- Verification Form -->
+            <div id="verification-form-container" {% if not show_verification %}class="d-none"{% endif %}>
+                <div class="verify-form-container">
+                    <h3 class="text-center mb-4">Verify Your Phone Number</h3>
+                    <p class="text-center mb-4">We've sent a verification code to <strong id="user-phone">{{ phone }}</strong></p>
+
+                    <form id="verify-form" method="post" action="{% url 'User:user-register-verify' %}">
+                        {% csrf_token %}
+
+                        <div class="form-group mb-4">
+                            <div class="input-with-icon">
+                                <i class="bi bi-shield-lock"></i>
+                                <input type="text" class="form-control" id="verification_code"
+                                       name="code" placeholder="4-digit code" required
+                                       maxlength="4" pattern="\d{4}">
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-submit">
+                                VERIFY ACCOUNT
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <a href="#" id="resend-code" class="text-muted">Resend code</a>
+                            <span id="countdown" class="text-muted ms-2">(60s)</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.register-form');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); // جلوگیری از ارسال سنتی فرم
+
+        const formData = new FormData(form);
+
+        fetch("{% url 'User:user-register' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // مخفی کردن فرم ثبت‌نام و نمایش فرم تأیید
+                document.getElementById('registration-form-container').classList.add('d-none');
+                document.getElementById('verification-form-container').classList.remove('d-none');
+
+                // نمایش شماره تلفن کاربر در فرم تأیید
+                document.getElementById('user-phone').textContent = data.phone;
+
+                // شروع تایمر برای ارسال مجدد کد (اختیاری)
+                startCountdown();
+            } else {
+                // نمایش خطاها
+                alert(data.error || 'خطایی رخ داده است!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('ارتباط با سرور قطع است!');
+        });
+    });
+});
+
+// تایمر شمارش معکوس (اختیاری)
+function startCountdown() {
+    let seconds = 60;
+    const countdownElement = document.getElementById('countdown');
+
+    const timer = setInterval(() => {
+        seconds--;
+        countdownElement.textContent = `(${seconds}s)`;
+
+        if (seconds <= 0) {
+            clearInterval(timer);
+            document.getElementById('resend-code').style.display = 'inline';
+            countdownElement.style.display = 'none';
+        }
+    }, 1000);
+}
+</script>
 
           <!-- /Register Section -->
 
@@ -365,63 +484,55 @@
                       <div class="faq-container">
 
                           <div class="faq-item faq-active">
-                              <h3>Non consectetur a erat nam at lectus urna duis?</h3>
+                              <h3>What is the maximum number of emails sent per call?</h3>
                               <div class="faq-content">
-                                  <p>Feugiat pretium nibh ipsum consequat. Tempus iaculis urna id volutpat lacus laoreet
-                                      non curabitur gravida. Venenatis lectus magna fringilla urna porttitor rhoncus
-                                      dolor purus non.</p>
+                                  <p>The maximum number of simultaneous sending and receiving statuses per call is 200.</p>
                               </div>
                               <i class="faq-toggle bi bi-chevron-right"></i>
                           </div><!-- End Faq item-->
 
                           <div class="faq-item">
-                              <h3>Feugiat scelerisque varius morbi enim nunc faucibus?</h3>
+                              <h3>Do we have to pay a fee to send from the web service?</h3>
                               <div class="faq-content">
-                                  <p>Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum
-                                      velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend
-                                      donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros
-                                      in cursus turpis massa tincidunt dui.</p>
+                                  <p>Yes, for this purpose, go to the line management section and set the desired line.
+                                      In this section, you can specify the address for transferring received
+                                      SMS messages as well as the GET / POST call method.</p>
                               </div>
                               <i class="faq-toggle bi bi-chevron-right"></i>
                           </div><!-- End Faq item-->
 
                           <div class="faq-item">
-                              <h3>Dolor sit amet consectetur adipiscing elit pellentesque?</h3>
+                              <h3>Is it possible to transfer received SMS messages to a URL?</h3>
                               <div class="faq-content">
-                                  <p>Eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci. Faucibus
-                                      pulvinar elementum integer enim. Sem nulla pharetra diam sit amet nisl suscipit.
-                                      Rutrum tellus pellentesque eu tincidunt. Lectus urna duis convallis convallis
-                                      tellus. Urna molestie at elementum eu facilisis sed odio morbi quis</p>
+                                  <p>Yes, as soon as we receive this status from the telecom,
+                                      the record status will be updated and the fee will be refunded to your account.</p>
                               </div>
                               <i class="faq-toggle bi bi-chevron-right"></i>
                           </div><!-- End Faq item-->
 
                           <div class="faq-item">
-                              <h3>Ac odio tempor orci dapibus. Aliquam eleifend mi in nulla?</h3>
+                              <h3>Some SMS messages return a status of "Not delivered to phone" or "Error". Do these SMS
+                                  messages have a way to reach their destination?</h3>
                               <div class="faq-content">
-                                  <p>Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum
-                                      velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend
-                                      donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros
-                                      in cursus turpis massa tincidunt dui.</p>
+                                  <p>Yes, one of the features of IRAN ESS  web service is to create such triggers.
+                                      For this purpose, please go to advanced settings and enable resending of SMS messages.
+                                      Note that this feature is enabled for the advanced web service version..</p>
                               </div>
                               <i class="faq-toggle bi bi-chevron-right"></i>
                           </div><!-- End Faq item-->
 
                           <div class="faq-item">
-                              <h3>Tempus quam pellentesque nec nam aliquam sem et tortor?</h3>
+                              <h3>Can purchased lines be transferred to other systems?</h3>
                               <div class="faq-content">
-                                  <p>Molestie a iaculis at erat pellentesque adipiscing commodo. Dignissim suspendisse
-                                      in est ante in. Nunc vel risus commodo viverra maecenas accumsan. Sit amet nisl
-                                      suscipit adipiscing bibendum est. Purus gravida quis blandit turpis cursus in</p>
+                                  <p>Yes, this is possible with a written letter.</p>
                               </div>
                               <i class="faq-toggle bi bi-chevron-right"></i>
                           </div><!-- End Faq item-->
 
                           <div class="faq-item">
-                              <h3>Perspiciatis quod quo quos nulla quo illum ullam?</h3>
+                              <h3>How is the profit from charging customers calculated?</h3>
                               <div class="faq-content">
-                                  <p>Enim ea facilis quaerat voluptas quidem et dolorem. Quis et consequatur non sed in
-                                      suscipit sequi. Distinctio ipsam dolore et.</p>
+                                  <p>For more information, visit Customer Management > Tariff Management.</p>
                               </div>
                               <i class="faq-toggle bi bi-chevron-right"></i>
                           </div><!-- End Faq item-->
@@ -437,53 +548,53 @@
 <!-- Contact Section -->
 <section id="contact" class="contact section">
 
-  <!-- Section Title -->
-  <div class="container section-title" data-aos="fade-up">
-    <h2>Contact</h2>
-    <div><span>Let's</span> <span class="description-title">Connect</span></div>
-  </div><!-- End Section Title -->
+<!-- Section Title -->
+<div class="container section-title" data-aos="fade-up">
+  <h2>Contact</h2>
+  <div><span>Let's</span> <span class="description-title">Connect</span></div>
+</div><!-- End Section Title -->
 
-  <div class="container" data-aos="fade-up" data-aos-delay="100">
+<div class="container" data-aos="fade-up" data-aos-delay="100">
 
-    <!-- Contact Info Boxes -->
-    <div class="row gy-4 mb-5">
-      <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
-        <div class="contact-info-box">
-          <div class="icon-box">
-            <i class="bi bi-geo-alt"></i>
-          </div>
-          <div class="info-content">
-            <h4>Our Address</h4>
-            <p>Semnan, Shahrood university</p>
-          </div>
+  <!-- Contact Info Boxes -->
+  <div class="row gy-4 mb-5">
+<div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+      <div class="contact-info-box">
+        <div class="icon-box">
+          <i class="bi bi-geo-alt"></i>
         </div>
-      </div>
-
-      <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
-        <div class="contact-info-box">
-          <div class="icon-box">
-            <i class="bi bi-envelope"></i>
-          </div>
-          <div class="info-content">
-            <h4>Email Address</h4>
-            <p>E.Aalami324@gmail.com</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
-        <div class="contact-info-box">
-          <div class="icon-box">
-            <i class="bi bi-headset"></i>
-          </div>
-          <div class="info-content">
-            <h4>Hours of Operation</h4>
-            <p>Sunday-Fri: 9 AM - 6 PM</p>
-            <p>Saturday: 9 AM - 4 PM</p>
-          </div>
+        <div class="info-content">
+          <h4>Our Address</h4>
+          <p><a href="https://maps.app.goo.gl/yyvYr46vhrAvjpM96" target="_blank" style="color: inherit; text-decoration: none;">Semnan, Shahrood university</a></p>
         </div>
       </div>
     </div>
+
+    <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+      <div class="contact-info-box">
+        <div class="icon-box">
+          <i class="bi bi-envelope"></i>
+        </div>
+        <div class="info-content">
+          <h4>Email Address</h4>
+          <p><a href="mailto:E.Aalami324@gmail.com" style="color: inherit; text-decoration: none;">E.Aalami324@gmail.com</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+      <div class="contact-info-box">
+        <div class="icon-box">
+          <i class="bi bi-headset"></i>
+        </div>
+        <div class="info-content">
+          <h4>Hours of Operation</h4>
+          <p>Sunday-Fri: 9 AM - 6 PM</p>
+          <p>Saturday: 9 AM - 4 PM</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
       <!-- Contact Form Section -->
 
@@ -494,19 +605,6 @@
 
                   <form method="post" action="{% url 'home:ticket' %}" class="php-email-form">
                       {% csrf_token %}
-
-                      <!-- System Messages -->
-                      {% if messages %}
-                          <div class="col-12">
-                              {% for message in messages %}
-                                  <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show mb-4">
-                                      {{ message }}
-                                      <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                              aria-label="Close"></button>
-                                  </div>
-                              {% endfor %}
-                          </div>
-                      {% endif %}
 
                       <div class="row g-3">
                           <!-- Name Field -->

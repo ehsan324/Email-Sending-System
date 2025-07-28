@@ -11,11 +11,13 @@ import random
 from utils import send_otp_code
 from ESS.settings import LOGIN_REDIRECT_URL
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse
+import json
 
 
 class BaseVerifyView(View):
     form_class = UserVerifyForm
-    template_name = 'User/verify.html'
+    template_name = 'home/index.html'
     success_message = None
     session_key = None
     failure_redirect = None
@@ -97,7 +99,7 @@ class UserLoginVerifyView(BaseVerifyView):
 
 class UserRegistrationView(View):
     form_class = UserRegistrationForm
-    template_name = 'User/register.html'
+    template_name = 'home/index.html'
     success_redirect = 'User:user-register-verify'
 
     @method_decorator(csrf_protect)
@@ -110,23 +112,37 @@ class UserRegistrationView(View):
 
     def post(self, request):
         form = self.form_class(request.POST)
+        print("Form errors:", form.errors)  # برای دیباگ
+
         if not form.is_valid():
-            return render(request, self.template_name, {'form': form})
+            return JsonResponse({
+                'success': False,
+                'error': 'مشکل در اعتبارسنجی فرم',
+                'errors': {f: e[0] for f, e in form.errors.items()},
+            }, status=400)
 
-        cd = form.cleaned_data
-        request.session['user_registration_info'] = {
-            'phone_number': cd['phone_number'],
-            'email': cd['email'],
-            'first_name': cd['first_name'],
-            'last_name': cd['last_name'],
-        }
+        try:
+            cd = form.cleaned_data
+            request.session['user_registration_info'] = {
+                'phone_number': cd['phone_number'],
+                'email': cd['email'],
+                'first_name': cd['first_name'],
+                'last_name': cd['last_name'],
+            }
 
-        random_number = random.randint(1000, 9999)
-        send_otp_code(cd['phone_number'], random_number)
-        OtpCode.objects.create(phone_number=cd['phone_number'], code=random_number)
+            random_number = random.randint(1000, 9999)
+            send_otp_code(cd['phone_number'], random_number)
+            OtpCode.objects.create(phone_number=cd['phone_number'], code=random_number)
 
-        messages.success(request, 'OTP code sent successfully')
-        return redirect(self.success_redirect)
+            return JsonResponse({
+                'success': True,
+                'phone': cd['phone_number'],
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e),
+            }, status=500)
 
 
 class UserLoginView(View):
@@ -137,7 +153,7 @@ class UserLoginView(View):
     @method_decorator(csrf_protect)
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('home:home')
+            return redirect('home:homes')
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
