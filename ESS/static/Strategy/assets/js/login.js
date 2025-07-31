@@ -1,149 +1,148 @@
-// Phone Verification System
-document.addEventListener('DOMContentLoaded', function() {
-  const phoneForm = document.getElementById('phoneVerificationForm');
-  const codeForm = document.getElementById('codeVerificationForm');
-  const sendCodeBtn = document.getElementById('sendCodeBtn');
-  const resendLink = document.getElementById('resendCodeLink');
-  const phoneNumberInput = document.getElementById('phoneNumber');
-  const verificationCodeInput = document.getElementById('verificationCode');
+document.addEventListener('DOMContentLoaded', function () {
+    const loginForm = document.querySelector('.login-form');
+    const verificationInputs = document.querySelectorAll('.verification-digit');
+    const hiddenCodeInput = document.getElementById('verificate_code');
 
-  // Send verification code
-  phoneForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const phoneNumber = phoneNumberInput.value.trim();
-
-    if (isValidPhoneNumber(phoneNumber)) {
-      sendCodeBtn.disabled = true;
-      sendCodeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
-
-      // Simulate API call
-      setTimeout(() => {
-        sendVerificationCode(phoneNumber)
-          .then(() => {
-            // Show verification code form
-            codeForm.style.display = 'block';
-            phoneForm.style.display = 'none';
-            sendCodeBtn.disabled = false;
-            sendCodeBtn.innerHTML = 'Send Code';
-          })
-          .catch(error => {
-            showError('Failed to send verification code. Please try again.');
-            sendCodeBtn.disabled = false;
-            sendCodeBtn.innerHTML = 'Send Code';
-          });
-      }, 1000);
-    } else {
-      showError('Please enter a valid phone number (e.g. 09123456789)');
+    // اگر فرم تأیید از ابتدا نمایش داده شده باشد
+    if (!document.getElementById('verificate-form-container').classList.contains('d-none')) {
+        startCountdown();
     }
-  });
 
-  // Resend code functionality
-  resendLink.addEventListener('click', function(e) {
-    e.preventDefault();
-    const phoneNumber = phoneNumberInput.value.trim();
+    // مدیریت ورود کد تأیید (بدون تغییر)
+    verificationInputs.forEach((input, index) => {
+        input.addEventListener('input', function () {
+            if (this.value.length === 1) {
+                if (index < verificationInputs.length - 1) {
+                    verificationInputs[index + 1].focus();
+                }
+                updateHiddenCode();
+            }
+        });
 
-    if (isValidPhoneNumber(phoneNumber)) {
-      resendLink.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Resending...';
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+                verificationInputs[index - 1].focus();
+            }
+        });
+    });
 
-      // Simulate API call
-      setTimeout(() => {
-        sendVerificationCode(phoneNumber)
-          .then(() => {
-            showSuccess('Verification code resent successfully!');
-            resendLink.innerHTML = 'Didn\'t receive code? Resend';
-          })
-          .catch(error => {
-            showError('Failed to resend code. Please try again.');
-            resendLink.innerHTML = 'Didn\'t receive code? Resend';
-          });
-      }, 1000);
+    function updateHiddenCode() {
+        hiddenCodeInput.value = Array.from(verificationInputs).map(input => input.value).join('');
     }
-  });
 
-  // Verify code functionality
-  codeForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const verificationCode = verificationCodeInput.value.trim();
-    const phoneNumber = phoneNumberInput.value.trim();
+    // ================= تغییرات اصلی اینجا =================
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
 
-    if (verificationCode.length === 6) {
-      const verifyBtn = document.getElementById('verifyCodeBtn');
-      verifyBtn.disabled = true;
-      verifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...';
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const spinner = submitBtn.querySelector('.spinner-border');
+            const btnText = submitBtn.querySelector('.btn-text');
 
-      // Simulate API call
-      setTimeout(() => {
-        verifyCode(phoneNumber, verificationCode)
-          .then(() => {
-            // Redirect on successful verification
-            window.location.href = "{% url 'home' %}";
-          })
-          .catch(error => {
-            showError('Invalid verification code. Please try again.');
-            verifyBtn.disabled = false;
-            verifyBtn.innerHTML = 'Verify';
-          });
-      }, 1000);
-    } else {
-      showError('Please enter a valid 6-digit code');
+            // حالت Loading
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+            btnText.textContent = 'Sending...';
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: new FormData(this),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // نمایش پیام موفقیت مانند Register
+                    showAlertMessage(data.notification || 'Verification code sent!', 'success');
+                    
+                    // انتقال به فرم تأیید
+                    document.getElementById('login-form-container').classList.add('d-none');
+                    document.getElementById('verificate-form-container').classList.remove('d-none');
+                    document.getElementById('user-phone_number').textContent = data.phone_number;
+                    startCountdown();
+                } else {
+                    // نمایش خطاها به سبک Register
+                    if (data.errors) {
+                        for (const field in data.errors) {
+                            showAlertMessage(data.errors[field][0], 'danger');
+                        }
+                    } else {
+                        showAlertMessage(data.error || 'Login failed!', 'danger');
+                    }
+                }
+            } catch (error) {
+                showAlertMessage('Server connection error!', 'danger');
+                console.error('Error:', error);
+            } finally {
+                submitBtn.disabled = false;
+                spinner.classList.add('d-none');
+                btnText.textContent = 'Send Verification Code';
+            }
+        });
     }
-  });
 
-  // Helper functions
-  function isValidPhoneNumber(phone) {
-    return /^09\d{9}$/.test(phone);
-  }
+    // ================= توابع بدون تغییر =================
+    function startCountdown() {
+        let seconds = 60;
+        const countdownElement = document.getElementById('countdown');
+        const resendLink = document.getElementById('resend-code');
 
-  function showError(message) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-    alertDiv.role = 'alert';
-    alertDiv.innerHTML = `
-      ${message}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
+        if (window.countdownTimer) {
+            clearInterval(window.countdownTimer);
+        }
 
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-      if (form.style.display !== 'none') {
-        form.prepend(alertDiv);
-      }
-    });
-  }
+        resendLink.classList.add('d-none');
+        countdownElement.classList.remove('d-none');
 
-  function showSuccess(message) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-success alert-dismissible fade show';
-    alertDiv.role = 'alert';
-    alertDiv.innerHTML = `
-      ${message}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
+        window.countdownTimer = setInterval(() => {
+            seconds--;
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            countdownElement.textContent = `Code expires in ${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
 
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-      if (form.style.display !== 'none') {
-        form.prepend(alertDiv);
-      }
-    });
-  }
+            if (seconds <= 0) {
+                clearInterval(window.countdownTimer);
+                resendLink.classList.remove('d-none');
+                countdownElement.classList.add('d-none');
+            }
+        }, 1000);
+    }
 
-  // API simulation functions
-  function sendVerificationCode(phoneNumber) {
-    return new Promise((resolve, reject) => {
-      // In a real app, this would be an AJAX call to your backend
-      console.log(`Sending verification code to: ${phoneNumber}`);
-      // Simulate 80% success rate
-      Math.random() > 0.2 ? resolve() : reject(new Error('Failed to send code'));
-    });
-  }
+    function showPhoneForm() {
+        document.getElementById('login-form-container').classList.remove('d-none');
+        document.getElementById('verificate-form-container').classList.add('d-none');
+    }
 
-  function verifyCode(phoneNumber, code) {
-    return new Promise((resolve, reject) => {
-      // In a real app, this would be an AJAX call to your backend
-      console.log(`Verifying code ${code} for phone: ${phoneNumber}`);
-      // Simulate 80% success rate
-      Math.random() > 0.2 ? resolve() : reject(new Error('Invalid code'));
-    });
-  }
+    // تابع نمایش پیام (مشابه Register)
+    function showAlertMessage(message, type) {
+        const oldAlerts = document.querySelectorAll('.custom-alert');
+        oldAlerts.forEach(alert => alert.remove());
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `custom-alert alert alert-${type} alert-dismissible fade show`;
+        alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+        alertDiv.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill'} me-2"></i>
+                <span>${message}</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+            alertDiv.classList.add('show');
+        }, 10);
+
+        setTimeout(() => {
+            alertDiv.classList.remove('show');
+            setTimeout(() => alertDiv.remove(), 300);
+        }, 5000);
+    }
 });

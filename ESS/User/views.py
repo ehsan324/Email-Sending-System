@@ -152,11 +152,12 @@ class UserRegistrationView(View):
             random_number = random.randint(1000, 9999)
             send_otp_code(cd['phone_number'], random_number)
             OtpCode.objects.create(phone_number=cd['phone_number'], code=random_number)
-            messages.success(request, 'you registered!', 'success')
 
             return JsonResponse({
                 'success': True,
                 'phone': cd['phone_number'],
+                'notification': f'We sent OTP code to {cd["phone_number"]}'
+
             })
         except Exception as e:
             return JsonResponse({

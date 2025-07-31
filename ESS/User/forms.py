@@ -37,13 +37,7 @@ class UserRegistrationForm(forms.Form):
             'placeholder': 'Phone Number'
         })
     )
-    password = forms.CharField(
-        required=True,
-        widget=forms.PasswordInput(attrs={
-            'class': 'input100',
-            'placeholder': 'Password'
-        })
-    )
+
 
 class UserVerifyForm(forms.Form):
     code = forms.IntegerField(

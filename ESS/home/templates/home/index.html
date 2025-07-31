@@ -30,6 +30,9 @@
     <!-- Main CSS File -->
     <link href="{% static 'Strategy/assets/css/main.css' %}" rel="stylesheet"/>
 
+
+    <!-- login CSS File -->
+    <link rel="stylesheet" href="{% static 'Strategy/assets/css/login.css' %}">
 </head>
 
 <body class="index-page">
@@ -67,14 +70,16 @@
 
             <!-- System Messages -->
             {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="messages">
+                    {% for message in messages %}
+                        <script>
+                            {% for message in messages %}
+                                showAlertMessage("{{ message }}", "{{ message.tags }}");
+                            {% endfor %}
+                        </script>
+                        </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
             {% endif %}
             <div class="row">
                 <div class="col-lg-7 content-col" data-aos="fade-up">
@@ -129,137 +134,152 @@
     </section>
     <!-- /Hero Section -->
 
-<!-- Login Section -->
-<section id="login" class="login section">
-    <!-- Section Title -->
-    <div class="container section-title" data-aos="fade-up">
-        <h2>Login</h2>
-        <div><span>Secure Access</span> <span class="description-title">To Your Account</span></div>
-    </div>
-    <!-- End Section Title -->
 
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="login-card shadow-lg rounded-4 overflow-hidden" data-aos="zoom-in">
-                    <div class="row g-0">
-                        <!-- Visual Side -->
-                        <div class="col-lg-6 d-none d-lg-block login-visual-side">
-                            <div class="h-100 d-flex flex-column justify-content-between p-5">
-                                <div>
-                                    <h3 class="text-white mb-4">Welcome Back!</h3>
-                                    <p class="text-white-50">Sign in to access your personalized dashboard and manage your email campaigns.</p>
-                                </div>
-                                <div class="features-list">
-                                    <div class="feature-item d-flex align-items-center mb-3">
-                                        <i class="bi bi-shield-check text-white me-3"></i>
-                                        <span class="text-white">Secure authentication</span>
+    <!-- Login Section -->
+    <section id="login" class="login section">
+        <!-- Section Title -->
+        <div class="container section-title" data-aos="fade-up">
+            <h2>Login</h2>
+            <div><span>Secure Access</span> <span class="description-title">To Your Account</span></div>
+        </div>
+        <!-- End Section Title -->
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="login-card shadow-lg rounded-4 overflow-hidden" data-aos="zoom-in">
+                        <div class="row g-0">
+                            <!-- Visual Side -->
+                            <div class="col-lg-6 d-none d-lg-block login-visual-side">
+                                <div class="h-100 d-flex flex-column justify-content-between p-5">
+                                    <div>
+                                        <h3 class="text-white mb-4">Welcome Back!</h3>
+                                        <p class="text-white-50">Sign in to access your personalized dashboard and
+                                            manage your email campaigns.</p>
                                     </div>
-                                    <div class="feature-item d-flex align-items-center mb-3">
-                                        <i class="bi bi-lightning-charge text-white me-3"></i>
-                                        <span class="text-white">Fast verification</span>
-                                    </div>
-                                    <div class="feature-item d-flex align-items-center">
-                                        <i class="bi bi-phone text-white me-3"></i>
-                                        <span class="text-white">Phone number login</span>
+                                    <div class="features-list">
+                                        <div class="feature-item d-flex align-items-center mb-3">
+                                            <i class="bi bi-shield-check text-white me-3"></i>
+                                            <span class="text-white">Secure authentication</span>
+                                        </div>
+                                        <div class="feature-item d-flex align-items-center mb-3">
+                                            <i class="bi bi-lightning-charge text-white me-3"></i>
+                                            <span class="text-white">Fast verification</span>
+                                        </div>
+                                        <div class="feature-item d-flex align-items-center">
+                                            <i class="bi bi-phone text-white me-3"></i>
+                                            <span class="text-white">Phone number login</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Form Side -->
-                        <div class="col-lg-6 login-form-side">
-                            <div class="p-4 p-md-5">
-                                <div class="text-center mb-4">
-                                    <h3>Sign In</h3>
-                                    <p class="text-muted">Enter your phone number to receive a verification code</p>
-                                </div>
-
-                                <!-- Phone Number Form -->
-                                <div id="login-form-container" {% if show_verificate %}class="d-none" {% endif %}>
-                                    <form class="login-form" method="post" action="{% url 'User:user-login' %}">
-                                        {% csrf_token %}
-
-                                        {% if form.errors %}
-                                        <div class="alert alert-danger alert-dismissible fade show">
-                                            {% for field, errors in form.errors.items %}
-                                            {% for error in errors %}
-                                            <p class="mb-0">{{ error }}</p>
-                                            {% endfor %}
-                                            {% endfor %}
-                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                        </div>
-                                        {% endif %}
-
-                                        <div class="mb-4">
-                                            <label for="phone_number" class="form-label">Phone Number</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text"><i class="bi bi-phone"></i></span>
-                                                <input type="tel" class="form-control" id="phone_number"
-                                                       name="phone_number" placeholder="e.g. 09123456789" required
-                                                       value="{{ form.phone_number.value|default_if_none:'' }}">
-                                            </div>
-                                        </div>
-
-                                        <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
-                                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                                            <span class="btn-text">Send Verification Code</span>
-                                        </button>
-
-                                        <div class="text-center text-muted mb-3">
-                                            <small>We'll send a 4-digit code to your phone</small>
-                                        </div>
-
-                                        <div class="text-center">
-                                            <p class="mb-0">Don't have an account? <a href="#register" class="text-decoration-none">Register</a></p>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <!-- Verification Form -->
-                                <div id="verificate-form-container" {% if not show_verificate %}class="d-none" {% endif %}>
+                            <!-- Form Side -->
+                            <div class="col-lg-6 login-form-side">
+                                <div class="p-4 p-md-5">
                                     <div class="text-center mb-4">
-                                        <div class="verification-icon bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
-                                            <i class="bi bi-shield-lock text-primary"></i>
-                                        </div>
-                                        <h4>Verify Your Phone</h4>
-                                        <p class="text-muted">Enter the 4-digit code sent to <strong id="user-phone_number">{{ phone_number }}</strong></p>
+                                        <h3>Sign In</h3>
+                                        <p class="text-muted">Enter your phone number to receive a verification code</p>
                                     </div>
 
-                                    <form id="verif-form" method="post" action="{% url 'User:user-login-verify' %}">
-                                        {% csrf_token %}
+                                    <!-- Phone Number Form -->
+                                    <div id="login-form-container" {% if show_verificate %}class="d-none" {% endif %}>
+                                        <form class="login-form" method="post" action="{% url 'User:user-login' %}">
+                                            {% csrf_token %}
 
-                                        <div class="mb-4">
-                                            <label for="verificate_code" class="form-label">Verification Code</label>
-                                            <div class="verification-inputs d-flex justify-content-between">
-                                                <input type="text" maxlength="1" class="form-control text-center verification-digit"
-                                                       pattern="\d" required>
-                                                <input type="text" maxlength="1" class="form-control text-center verification-digit"
-                                                       pattern="\d" required>
-                                                <input type="text" maxlength="1" class="form-control text-center verification-digit"
-                                                       pattern="\d" required>
-                                                <input type="text" maxlength="1" class="form-control text-center verification-digit"
-                                                       pattern="\d" required>
+                                            {% if form.errors %}
+                                                <div class="alert alert-danger alert-dismissible fade show">
+                                                    {% for field, errors in form.errors.items %}
+                                                        {% for error in errors %}
+                                                            <p class="mb-0">{{ error }}</p>
+                                                        {% endfor %}
+                                                    {% endfor %}
+                                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                            aria-label="Close"></button>
+                                                </div>
+                                            {% endif %}
+
+                                            <div class="mb-4">
+                                                <label for="phone_number" class="form-label">Phone Number</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text"><i class="bi bi-phone"></i></span>
+                                                    <input type="tel" class="form-control" id="phone_number"
+                                                           name="phone_number" placeholder="e.g. 09123456789" required
+                                                           value="{{ form.phone_number.value|default_if_none:'' }}">
+                                                </div>
                                             </div>
-                                            <input type="hidden" id="verificate_code" name="code">
+
+                                            <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                                                <span class="spinner-border spinner-border-sm d-none" role="status"
+                                                      aria-hidden="true"></span>
+                                                <span class="btn-text">Send Verification Code</span>
+                                            </button>
+
+                                            <div class="text-center text-muted mb-3">
+                                                <small>We'll send a 4-digit code to your phone</small>
+                                            </div>
+
+                                            <div class="text-center">
+                                                <p class="mb-0">Don't have an account? <a href="#register"
+                                                                                          class="text-decoration-none">Register</a>
+                                                </p>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <!-- Verification Form -->
+                                    <div id="verificate-form-container"
+                                         {% if not show_verificate %}class="d-none" {% endif %}>
+                                        <div class="text-center mb-4">
+                                            <div class="verification-icon bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                                                <i class="bi bi-shield-lock text-primary"></i>
+                                            </div>
+                                            <h4>Verify Your Phone</h4>
+                                            <p class="text-muted">Enter the 4-digit code sent to <strong
+                                                    id="user-phone_number">{{ phone_number }}</strong></p>
                                         </div>
 
-                                        <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
-                                            Verify & Continue
-                                        </button>
+                                        <form id="verif-form" method="post" action="{% url 'User:user-login-verify' %}">
+                                            {% csrf_token %}
 
-                                        <div class="text-center">
-                                            <p class="mb-1">
-                                                <a href="#" id="resend-code" class="text-decoration-none d-none">Resend code</a>
-                                                <span id="countdown" class="text-muted">Code expires in 1:00</span>
-                                            </p>
-                                            <p class="mb-0">
-                                                <a href="#" class="text-decoration-none" onclick="showPhoneForm()">
-                                                    <i class="bi bi-arrow-left"></i> Use different number
-                                                </a>
-                                            </p>
-                                        </div>
-                                    </form>
+                                            <div class="mb-4">
+                                                <label for="verificate_code" class="form-label">Verification
+                                                    Code</label>
+                                                <div class="verification-inputs d-flex justify-content-between">
+                                                    <input type="text" maxlength="1"
+                                                           class="form-control text-center verification-digit"
+                                                           pattern="\d" required>
+                                                    <input type="text" maxlength="1"
+                                                           class="form-control text-center verification-digit"
+                                                           pattern="\d" required>
+                                                    <input type="text" maxlength="1"
+                                                           class="form-control text-center verification-digit"
+                                                           pattern="\d" required>
+                                                    <input type="text" maxlength="1"
+                                                           class="form-control text-center verification-digit"
+                                                           pattern="\d" required>
+                                                </div>
+                                                <input type="hidden" id="verificate_code" name="code">
+                                            </div>
+
+                                            <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                                                Verify & Continue
+                                            </button>
+
+                                            <div class="text-center">
+                                                <p class="mb-1">
+                                                    <a href="#" id="resend-code" class="text-decoration-none d-none">Resend
+                                                        code</a>
+                                                    <span id="countdown" class="text-muted">Code expires in 1:00</span>
+                                                </p>
+                                                <p class="mb-0">
+                                                    <a href="#" class="text-decoration-none" onclick="showPhoneForm()">
+                                                        <i class="bi bi-arrow-left"></i> Use different number
+                                                    </a>
+                                                </p>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -267,172 +287,9 @@
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-    <style>
-    .login-card {
-        background: #fff;
-        border: none;
-    }
-
-    .login-visual-side {
-        background: linear-gradient(135deg, #a9b53c 0%, #457f11 100%);
-    }
-
-    .login-form-side {
-        background: #ffffff;
-    }
-
-    .verification-icon {
-        width: 60px;
-        height: 60px;
-        font-size: 1.5rem;
-    }
-
-    .verification-inputs .verification-digit {
-        width: 22%;
-        height: 60px;
-        font-size: 1.5rem;
-        margin: 0 4px;
-    }
-
-    .verification-inputs .verification-digit:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
-    }
-
-    .features-list i {
-        font-size: 1.2rem;
-    }
-    .message {
-    position: relative;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    width: 350px;
-    max-width: 90%;
-}
-</style>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.querySelector('.login-form');
-        const verificationInputs = document.querySelectorAll('.verification-digit');
-        const hiddenCodeInput = document.getElementById('verificate_code');
-        if (!document.getElementById('verificate-form-container').classList.contains('d-none')) {
-        startCountdown();
-    }
-
-        // Handle digit inputs for verification code
-        verificationInputs.forEach((input, index) => {
-            input.addEventListener('input', function() {
-                if (this.value.length === 1) {
-                    if (index < verificationInputs.length - 1) {
-                        verificationInputs[index + 1].focus();
-                    }
-                    updateHiddenCode();
-                }
-            });
-
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
-                    verificationInputs[index - 1].focus();
-                }
-            });
-        });
-
-        function updateHiddenCode() {
-            let code = '';
-            verificationInputs.forEach(input => {
-                code += input.value;
-            });
-            hiddenCodeInput.value = code;
-        }
-
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const spinner = submitBtn.querySelector('.spinner-border');
-            const btnText = submitBtn.querySelector('.btn-text');
-
-            // Show loading state
-            spinner.classList.remove('d-none');
-            btnText.textContent = 'Sending...';
-
-            const formData = new FormData(form);
-
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw err;
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('login-form-container').classList.add('d-none');
-                        document.getElementById('verificate-form-container').classList.remove('d-none');
-                        document.getElementById('user-phone_number').textContent = data.phone_number;
-                        startCountdown();
-                    } else {
-                        if (data.errors) {
-                            for (const field in data.errors) {
-                                alert(data.errors[field][0].message);
-                            }
-                        } else {
-                            alert(data.error || 'An error occurred!');
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert(error.error || 'Server connection error!');
-                })
-                .finally(() => {
-                    spinner.classList.add('d-none');
-                    btnText.textContent = 'Send Verification Code';
-                });
-        });
-    });
-
-    function startCountdown() {
-        let seconds = 60;
-        const countdownElement = document.getElementById('countdown');
-        const resendLink = document.getElementById('resend-code');
-
-        if (window.countdownTimer) {
-        clearInterval(window.countdownTimer);
-    }
-
-        resendLink.classList.add('d-none');
-        countdownElement.classList.remove('d-none');
-
-        const window = setInterval(() => {
-            seconds--;
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = seconds % 60;
-            countdownElement.textContent = `Code expires in ${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-
-            if (seconds <= 0) {
-                clearInterval(timer);
-                resendLink.classList.remove('d-none');
-                countdownElement.classList.add('d-none');
-            }
-        }, 1000);
-    }
-
-    function showPhoneForm() {
-        document.getElementById('login-form-container').classList.remove('d-none');
-        document.getElementById('verificate-form-container').classList.add('d-none');
-    }
-</script>
+    <script src="{% static 'Strategy/assets/js/login.js' %}"></script>
     <!-- /Login Section -->
 
     <!-- Register Section -->
@@ -479,13 +336,13 @@
 
                         <div class="row g-3">
                             {% if form.errors %}
-                            <div class="alert alert-danger">
-                                {% for field, errors in form.errors.items %}
-                                {% for error in errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                                {% endfor %}
-                            </div>
+                                <div class="alert alert-danger">
+                                    {% for field, errors in form.errors.items %}
+                                        {% for error in errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
                             {% endif %}
 
                             <div class="row g-3">
@@ -532,25 +389,6 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <div class="input-with-icon">
-                                            <i class="bi bi-lock"></i>
-                                            <input type="password" class="form-control" id="password1" name="password"
-                                                   placeholder="Password" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <div class="input-with-icon">
-                                            <i class="bi bi-lock"></i>
-                                            <input type="password" class="form-control" id="password2"
-                                                   name="password2" placeholder="Confirm Password">
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <div class="col-12">
                                     <div class="form-group form-check">
                                         <input type="checkbox" class="form-check-input" id="terms" name="terms"
@@ -576,7 +414,7 @@
                     <div class="verify-form-container">
                         <h3 class="text-center mb-4">Verify Your Phone Number</h3>
                         <p class="text-center mb-4">We've sent a verification code to <strong id="user-phone">{{ phone
-                            }}</strong></p>
+                                }}</strong></p>
 
                         <form id="verify-form" method="post" action="{% url 'User:user-register-verify' %}">
                             {% csrf_token %}
@@ -608,106 +446,12 @@
         </div>
     </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.querySelector('.register-form');
+    <script src="{% static 'Strategy/assets/js/register.js' %}"></script>
 
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                const formData = new FormData(form);
-
-                fetch("{% url 'User:user-register' %}", {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
-                    },
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            document.getElementById('registration-form-container').classList.add('d-none');
-                            document.getElementById('verification-form-container').classList.remove('d-none');
-                            document.getElementById('user-phone').textContent = data.phone;
-                            startCountdown();
-
-                            // اضافه کردن هندلر برای فرم تأیید
-                            const verifyForm = document.getElementById('verify-form');
-                            if (verifyForm) {
-                                verifyForm.addEventListener('submit', function (e) {
-                                    e.preventDefault();
-
-                                    fetch("{% url 'User:user-register-verify' %}", {
-                                        method: 'POST',
-                                        body: new FormData(verifyForm),
-                                        headers: {
-                                            'X-CSRFToken': verifyForm.querySelector('[name=csrfmiddlewaretoken]').value,
-                                        },
-                                    })
-                                        .then(response => {
-                                            if (response.redirected) {
-                                                window.location.href = response.url;
-                                            }
-                                        })
-                                        .catch(error => {
-                                            console.error('Error:', error);
-                                            alert('خطا در تأیید کد!');
-                                        });
-                                });
-                            }
-                        } else {
-                            alert(data.error || 'خطایی رخ داده است!');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('ارتباط با سرور قطع است!');
-                    });
-            });
-        });
-
-      function startCountdown() {
-    // Get remaining time from server or default to 60
-    let seconds = parseInt(document.getElementById('countdown').dataset.remaining) || 60;
-    const countdownElement = document.getElementById('countdown');
-    const resendLink = document.getElementById('resend-code');
-
-    // Clear any existing timer
-    if (window.countdownTimer) {
-        clearInterval(window.countdownTimer);
-    }
-
-    resendLink.classList.add('d-none');
-    countdownElement.classList.remove('d-none');
-
-    // Update immediately
-    updateCountdownDisplay();
-
-    // Start timer
-    window.countdownTimer = setInterval(() => {
-        seconds--;
-        updateCountdownDisplay();
-
-        if (seconds <= 0) {
-            clearInterval(window.countdownTimer);
-            resendLink.classList.remove('d-none');
-            countdownElement.classList.add('d-none');
-        }
-    }, 1000);
-
-    function updateCountdownDisplay() {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        countdownElement.textContent = `Code expires in ${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-    }
-}
-    </script>
 
     <!-- /Register Section -->
 
 
-    </section><!-- /Pricing Section -->
 
     <!-- Faq Section -->
     <section class="faq-9 faq section" id="FAQ">
@@ -872,11 +616,11 @@
                                                    value="{{ form.name.value|default_if_none:'' }}"
                                                    required>
                                             {% if form.name.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                {% for error in form.name.errors %}
-                                                {{ error }}
-                                                {% endfor %}
-                                            </div>
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.name.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -894,11 +638,11 @@
                                                    value="{{ form.email.value|default_if_none:'' }}"
                                                    required>
                                             {% if form.email.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                {% for error in form.email.errors %}
-                                                {{ error }}
-                                                {% endfor %}
-                                            </div>
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.email.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -916,11 +660,11 @@
                                                    value="{{ form.subject.value|default_if_none:'' }}"
                                                    required>
                                             {% if form.subject.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                {% for error in form.subject.errors %}
-                                                {{ error }}
-                                                {% endfor %}
-                                            </div>
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.subject.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -938,11 +682,11 @@
                                                     rows="6"
                                                     required>{{ form.message.value|default_if_none:'' }}</textarea>
                                             {% if form.message.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                {% for error in form.message.errors %}
-                                                {{ error }}
-                                                {% endfor %}
-                                            </div>
+                                                <div class="invalid-feedback d-block">
+                                                    {% for error in form.message.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -988,10 +732,33 @@
                 <p> Our company has always been one of the best in Iran in terms of technology, and with the help of the
                     abilities of the country's youth, it has managed to manufacture more than 50 different products in
                     the field of technology. </p>
-                <div class="social-links d-flex mt-4">
-                    <a href="https://github.com/ehsan324/"><i class="bi bi-github"></i></a>
-                    <a href="https://t.me/EhsanAlami"><i class="bi bi-telegram"></i></a>
-                    <a href="https://linkedin.com/in/ehsan-alami"><i class="bi bi-linkedin"></i></a>
+                <div class="social-links d-flex mt-4 gap-3">
+                    <!-- GitHub -->
+                    <a href="https://github.com/ehsan324/"
+                       class="social-icon"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       title="GitHub Profile">
+                        <i class="bi bi-github"></i>
+                    </a>
+
+                    <!-- Telegram (نسخه وب) -->
+                    <a href="https://t.me/EhsanAlami"
+                       class="social-icon"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       title="Telegram">
+                        <i class="bi bi-telegram"></i>
+                    </a>
+
+                    <!-- LinkedIn -->
+                    <a href="https://www.linkedin.com/in/ehsan-alami"
+                       class="social-icon"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       title="LinkedIn Profile">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
                 </div>
             </div>
 
