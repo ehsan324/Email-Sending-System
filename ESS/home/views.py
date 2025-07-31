@@ -8,6 +8,10 @@ class HomeView(View):
     def get(self, request):
         return render(request, 'home/index.html')
 
+class TestView(View):
+    def get(self, request):
+        return render(request, 'home/profile.html')
+
 
 class TicketView(View):
     def get(self, request):

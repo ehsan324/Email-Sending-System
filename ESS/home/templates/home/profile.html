@@ -1,0 +1,857 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>User Dashboard - Email Sender</title>
+    <meta name="description" content=""/>
+    <meta name="keywords" content=""/>
+
+    <!-- Favicons -->
+    <link href="{% static 'Strategy/assets/img/favicon.png' %}" rel="icon"/>
+    <link href="{% static 'Strategy/assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon"/>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Nunito+Sans:ital,wght@0,200;0,300;0,400;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap"
+          rel="stylesheet"/>
+
+    <!-- Vendor CSS Files -->
+    <link href="{% static 'Strategy/assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'Strategy/assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet"/>
+    <link href="{% static 'Strategy/assets/vendor/aos/aos.css' %}" rel="stylesheet"/>
+    <link href="{% static 'Strategy/assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'Strategy/assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet"/>
+
+    <!-- Main CSS File -->
+    <link href="{% static 'Strategy/assets/css/main.css' %}" rel="stylesheet"/>
+
+    <!-- Dashboard CSS File -->
+    <link rel="stylesheet" href="{% static 'Strategy/assets/css/dashboard.css' %}">
+</head>
+
+<body class="dashboard-page">
+
+<!-- Sidebar -->
+<aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <div class="user-profile">
+            <div class="profile-img">
+                <img src="{% static 'Strategy/assets/img/profile-img.jpg' %}" alt="Profile Image" class="rounded-circle">
+            </div>
+            <div class="profile-info">
+                <h5>{{ user.first_name }} {{ user.last_name }}</h5>
+                <span class="text-muted">{{ user.email }}</span>
+            </div>
+        </div>
+    </div>
+
+    <ul class="sidebar-nav">
+        <li class="nav-item">
+            <a href="#" class="nav-link active" data-content="dashboard">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link" data-content="add-contact">
+                <i class="bi bi-person-plus"></i>
+                <span>Add Contact</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link" data-content="create-group">
+                <i class="bi bi-people"></i>
+                <span>Create Group</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link" data-content="single-message">
+                <i class="bi bi-envelope"></i>
+                <span>Single Message</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link" data-content="group-message">
+                <i class="bi bi-mailbox"></i>
+                <span>Group Message</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link" data-content="message-history">
+                <i class="bi bi-clock-history"></i>
+                <span>Message History</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link" data-content="settings">
+                <i class="bi bi-gear"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'User:user-logout' %}" class="nav-link logout-link">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </a>
+        </li>
+    </ul>
+</aside>
+<!-- End Sidebar -->
+
+<!-- Main Content -->
+<main id="main" class="main">
+    <div class="main-header">
+        <button class="btn sidebar-toggle d-lg-none">
+            <i class="bi bi-list"></i>
+        </button>
+        <h2 class="page-title">Dashboard</h2>
+        <div class="header-actions">
+            <button class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Message
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content active" id="dashboard-content">
+        <div class="row">
+            <!-- Stats Cards -->
+            <div class="col-md-6 col-lg-3">
+                <div class="stats-card">
+                    <div class="stats-icon bg-primary">
+                        <i class="bi bi-envelope"></i>
+                    </div>
+                    <div class="stats-info">
+                        <h3>1,254</h3>
+                        <p>Total Messages</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="stats-card">
+                    <div class="stats-icon bg-success">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="stats-info">
+                        <h3>1,032</h3>
+                        <p>Delivered</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="stats-card">
+                    <div class="stats-icon bg-warning">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="stats-info">
+                        <h3>87</h3>
+                        <p>Contacts</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="stats-card">
+                    <div class="stats-icon bg-info">
+                        <i class="bi bi-collection"></i>
+                    </div>
+                    <div class="stats-info">
+                        <h3>12</h3>
+                        <p>Groups</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <!-- Recent Messages -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Recent Messages</h4>
+                        <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Recipient</th>
+                                        <th>Subject</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>john.doe@example.com</td>
+                                        <td>Weekly Newsletter</td>
+                                        <td><span class="badge bg-success">Delivered</span></td>
+                                        <td>2 hours ago</td>
+                                    </tr>
+                                    <tr>
+                                        <td>marketing@company.com</td>
+                                        <td>Special Offer</td>
+                                        <td><span class="badge bg-warning">Pending</span></td>
+                                        <td>5 hours ago</td>
+                                    </tr>
+                                    <tr>
+                                        <td>support@client.org</td>
+                                        <td>Service Update</td>
+                                        <td><span class="badge bg-danger">Failed</span></td>
+                                        <td>1 day ago</td>
+                                    </tr>
+                                    <tr>
+                                        <td>all@employees.com</td>
+                                        <td>Meeting Reminder</td>
+                                        <td><span class="badge bg-success">Delivered</span></td>
+                                        <td>2 days ago</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Quick Actions</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="quick-actions">
+                            <a href="#" class="action-item" data-content="add-contact">
+                                <div class="action-icon bg-primary">
+                                    <i class="bi bi-person-plus"></i>
+                                </div>
+                                <span>Add Contact</span>
+                            </a>
+                            <a href="#" class="action-item" data-content="create-group">
+                                <div class="action-icon bg-success">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <span>Create Group</span>
+                            </a>
+                            <a href="#" class="action-item" data-content="single-message">
+                                <div class="action-icon bg-info">
+                                    <i class="bi bi-envelope"></i>
+                                </div>
+                                <span>Send Message</span>
+                            </a>
+                            <a href="#" class="action-item" data-content="group-message">
+                                <div class="action-icon bg-warning">
+                                    <i class="bi bi-mailbox"></i>
+                                </div>
+                                <span>Group Message</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Contacts -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4>Recent Contacts</h4>
+                        <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="contacts-list">
+                            <div class="contact-item">
+                                <div class="contact-img">
+                                    <img src="{% static 'Strategy/assets/img/profile-img-2.jpg' %}" alt="Contact" class="rounded-circle">
+                                </div>
+                                <div class="contact-info">
+                                    <h5>John Doe</h5>
+                                    <span>john.doe@example.com</span>
+                                </div>
+                                <div class="contact-action">
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Message</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-img">
+                                    <img src="{% static 'Strategy/assets/img/profile-img-3.jpg' %}" alt="Contact" class="rounded-circle">
+                                </div>
+                                <div class="contact-info">
+                                    <h5>Sarah Smith</h5>
+                                    <span>sarah.smith@company.com</span>
+                                </div>
+                                <div class="contact-action">
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Message</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-img">
+                                    <img src="{% static 'Strategy/assets/img/profile-img-4.jpg' %}" alt="Contact" class="rounded-circle">
+                                </div>
+                                <div class="contact-info">
+                                    <h5>Michael Johnson</h5>
+                                    <span>michael@client.org</span>
+                                </div>
+                                <div class="contact-action">
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Message</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Contact Content -->
+    <div class="dashboard-content" id="add-contact-content">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Add New Contact</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="add-contact-form" method="post" action="">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="contact-name" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="contact-name" name="name" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="contact-email" class="form-label">Email Address</label>
+                                        <input type="email" class="form-control" id="contact-email" name="email" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="contact-phone" class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="contact-phone" name="phone">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="contact-group" class="form-label">Group</label>
+                                        <select class="form-select" id="contact-group" name="group">
+                                            <option value="">Select Group</option>
+                                            <option value="1">Clients</option>
+                                            <option value="2">Team</option>
+                                            <option value="3">Friends</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="contact-notes" class="form-label">Notes</label>
+                                        <textarea class="form-control" id="contact-notes" name="notes" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">Add Contact</button>
+                                    <button type="button" class="btn btn-outline-secondary">Cancel</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Group Content -->
+    <div class="dashboard-content" id="create-group-content">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Create New Group</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="create-group-form" method="post" action="">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="group-name" class="form-label">Group Name</label>
+                                        <input type="text" class="form-control" id="group-name" name="group_name" required>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="group-description" class="form-label">Description</label>
+                                        <textarea class="form-control" id="group-description" name="description" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label class="form-label">Select Contacts</label>
+                                        <div class="contacts-selection">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="contact1" name="contacts" value="1">
+                                                <label class="form-check-label" for="contact1">
+                                                    John Doe (john.doe@example.com)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="contact2" name="contacts" value="2">
+                                                <label class="form-check-label" for="contact2">
+                                                    Sarah Smith (sarah.smith@company.com)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="contact3" name="contacts" value="3">
+                                                <label class="form-check-label" for="contact3">
+                                                    Michael Johnson (michael@client.org)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="contact4" name="contacts" value="4">
+                                                <label class="form-check-label" for="contact4">
+                                                    Emily Wilson (emily.wilson@domain.com)
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">Create Group</button>
+                                    <button type="button" class="btn btn-outline-secondary">Cancel</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Single Message Content -->
+    <div class="dashboard-content" id="single-message-content">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Send Single Message</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="single-message-form" method="post" action="">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="single-recipient" class="form-label">Recipient</label>
+                                        <select class="form-select" id="single-recipient" name="recipient" required>
+                                            <option value="">Select Recipient</option>
+                                            <option value="1">John Doe (john.doe@example.com)</option>
+                                            <option value="2">Sarah Smith (sarah.smith@company.com)</option>
+                                            <option value="3">Michael Johnson (michael@client.org)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="single-subject" class="form-label">Subject</label>
+                                        <input type="text" class="form-control" id="single-subject" name="subject" required>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="single-message" class="form-label">Message</label>
+                                        <textarea class="form-control" id="single-message" name="message" rows="6" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="single-attachment" class="form-label">Attachment</label>
+                                        <input type="file" class="form-control" id="single-attachment" name="attachment">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="single-schedule" name="schedule">
+                                        <label class="form-check-label" for="single-schedule">
+                                            Schedule this message
+                                        </label>
+                                    </div>
+                                    <div id="schedule-fields" class="mt-3" style="display: none;">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="schedule-date" class="form-label">Date</label>
+                                                <input type="date" class="form-control" id="schedule-date" name="schedule_date">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="schedule-time" class="form-label">Time</label>
+                                                <input type="time" class="form-control" id="schedule-time" name="schedule_time">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">Send Message</button>
+                                    <button type="button" class="btn btn-outline-secondary">Save Draft</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group Message Content -->
+    <div class="dashboard-content" id="group-message-content">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Send Group Message</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="group-message-form" method="post" action="">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="group-recipients" class="form-label">Recipients</label>
+                                        <select class="form-select" id="group-recipients" name="recipients" multiple required>
+                                            <option value="1">Clients (24 contacts)</option>
+                                            <option value="2">Team (8 contacts)</option>
+                                            <option value="3">Friends (15 contacts)</option>
+                                            <option value="4">VIP Customers (12 contacts)</option>
+                                        </select>
+                                        <small class="text-muted">Hold Ctrl/Cmd to select multiple groups</small>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="group-subject" class="form-label">Subject</label>
+                                        <input type="text" class="form-control" id="group-subject" name="subject" required>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="group-message" class="form-label">Message</label>
+                                        <textarea class="form-control" id="group-message" name="message" rows="6" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="group-attachment" class="form-label">Attachment</label>
+                                        <input type="file" class="form-control" id="group-attachment" name="attachment">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="group-personalize" name="personalize">
+                                        <label class="form-check-label" for="group-personalize">
+                                            Personalize messages with recipient names
+                                        </label>
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" id="group-schedule" name="schedule">
+                                        <label class="form-check-label" for="group-schedule">
+                                            Schedule this message
+                                        </label>
+                                    </div>
+                                    <div id="group-schedule-fields" class="mt-3" style="display: none;">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="group-schedule-date" class="form-label">Date</label>
+                                                <input type="date" class="form-control" id="group-schedule-date" name="schedule_date">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="group-schedule-time" class="form-label">Time</label>
+                                                <input type="time" class="form-control" id="group-schedule-time" name="schedule_time">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">Send Message</button>
+                                    <button type="button" class="btn btn-outline-secondary">Save Draft</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message History Content -->
+    <div class="dashboard-content" id="message-history-content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Message History</h4>
+                        <div class="filter-options">
+                            <select class="form-select form-select-sm">
+                                <option>All Messages</option>
+                                <option>Sent</option>
+                                <option>Drafts</option>
+                                <option>Scheduled</option>
+                                <option>Failed</option>
+                            </select>
+                            <input type="date" class="form-control form-control-sm">
+                            <button class="btn btn-sm btn-outline-primary">Filter</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Recipient(s)</th>
+                                        <th>Subject</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2023-06-15 14:30</td>
+                                        <td>john.doe@example.com</td>
+                                        <td>Weekly Newsletter</td>
+                                        <td>Single</td>
+                                        <td><span class="badge bg-success">Delivered</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">View</button>
+                                            <button class="btn btn-sm btn-outline-secondary">Resend</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2023-06-14 09:15</td>
+                                        <td>Clients Group (24)</td>
+                                        <td>Special Offer</td>
+                                        <td>Group</td>
+                                        <td><span class="badge bg-success">Delivered</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">View</button>
+                                            <button class="btn btn-sm btn-outline-secondary">Resend</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2023-06-12 16:45</td>
+                                        <td>sarah.smith@company.com</td>
+                                        <td>Meeting Reminder</td>
+                                        <td>Single</td>
+                                        <td><span class="badge bg-warning">Pending</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">View</button>
+                                            <button class="btn btn-sm btn-outline-secondary">Resend</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2023-06-10 11:20</td>
+                                        <td>Team Group (8)</td>
+                                        <td>Project Update</td>
+                                        <td>Group</td>
+                                        <td><span class="badge bg-danger">Failed</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">View</button>
+                                            <button class="btn btn-sm btn-outline-secondary">Resend</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Content -->
+    <div class="dashboard-content" id="settings-content">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Account Settings</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">Profile</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">Security</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">Notifications</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content mt-4" id="settingsTabsContent">
+                            <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                                <form id="profile-form" method="post" action="">
+                                    {% csrf_token %}
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="first-name" class="form-label">First Name</label>
+                                                <input type="text" class="form-control" id="first-name" name="first_name" value="{{ user.first_name }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="last-name" class="form-label">Last Name</label>
+                                                <input type="text" class="form-control" id="last-name" name="last_name" value="{{ user.last_name }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="email" class="form-label">Email Address</label>
+                                                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="phone" class="form-label">Phone Number</label>
+                                                <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.phone_number }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="bio" class="form-label">Bio</label>
+                                                <textarea class="form-control" id="bio" name="bio" rows="3">Brief description about yourself</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="profile-pic" class="form-label">Profile Picture</label>
+                                                <input type="file" class="form-control" id="profile-pic" name="profile_pic">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="security" role="tabpanel">
+                                <form id="security-form" method="post" action="">
+                                    {% csrf_token %}
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="current-password" class="form-label">Current Password</label>
+                                                <input type="password" class="form-control" id="current-password" name="current_password" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="new-password" class="form-label">New Password</label>
+                                                <input type="password" class="form-control" id="new-password" name="new_password" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="confirm-password" class="form-label">Confirm Password</label>
+                                                <input type="password" class="form-control" id="confirm-password" name="confirm_password" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="two-factor" name="two_factor">
+                                                <label class="form-check-label" for="two-factor">
+                                                    Enable Two-Factor Authentication
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-primary">Update Security</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="notifications" role="tabpanel">
+                                <form id="notifications-form" method="post" action="">
+                                    {% csrf_token %}
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <h5>Email Notifications</h5>
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox" id="email-messages" name="email_messages" checked>
+                                                <label class="form-check-label" for="email-messages">New messages received</label>
+                                            </div>
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox" id="email-promotions" name="email_promotions" checked>
+                                                <label class="form-check-label" for="email-promotions">Promotions and offers</label>
+                                            </div>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="email-updates" name="email_updates">
+                                                <label class="form-check-label" for="email-updates">Product updates</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mt-4">
+                                            <h5>Push Notifications</h5>
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox" id="push-messages" name="push_messages" checked>
+                                                <label class="form-check-label" for="push-messages">New messages received</label>
+                                            </div>
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox" id="push-reminders" name="push_reminders">
+                                                <label class="form-check-label" for="push-reminders">Reminders</label>
+                                            </div>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="push-updates" name="push_updates">
+                                                <label class="form-check-label" for="push-updates">System updates</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mt-4">
+                                            <button type="submit" class="btn btn-primary">Update Notifications</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- End Main Content -->
+
+<!-- Vendor JS Files -->
+<script src="{% static 'Strategy/assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'Strategy/assets/vendor/aos/aos.js' %}"></script>
+<script src="{% static 'Strategy/assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
+<script src="{% static 'Strategy/assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
+<script src="{% static 'Strategy/assets/vendor/imagesloaded/imagesloaded.pkgd.min.js' %}"></script>
+<script src="{% static 'Strategy/assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+
+<!-- Main JS File -->
+<script src="{% static 'Strategy/assets/js/main.js' %}"></script>
+
+<!-- Dashboard JS File -->
+<script src="{% static 'Strategy/assets/js/dashboard.js' %}"></script>
+
+</body>
+
+</html>

@@ -1,3 +1,4 @@
+from audioop import reverse
 from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -80,8 +81,12 @@ class BaseVerifyView(View):
 
             self.handle_success(request, session_data)
             code_instance.delete()
-            messages.success(request, self.success_message, 'success')
-            return redirect(LOGIN_REDIRECT_URL)
+            return JsonResponse({
+                'success': True,
+                'message': 'Login Successful',
+                'redirect_url': 'home/index.html'
+            }, status=200)
+
 
         except ObjectDoesNotExist:
             self.error_message = 'Invalid session, please try again'
@@ -212,6 +217,7 @@ class UserLoginView(View):
                 'success': True,
                 'message': 'OTP code sent successfully',
                 'phone': cd['phone_number']
+
 
             })
 

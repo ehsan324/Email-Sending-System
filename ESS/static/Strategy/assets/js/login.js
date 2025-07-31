@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     // نمایش پیام موفقیت مانند Register
                     showAlertMessage(data.notification || 'Verification code sent!', 'success');
-                    
+
                     // انتقال به فرم تأیید
                     document.getElementById('login-form-container').classList.add('d-none');
                     document.getElementById('verificate-form-container').classList.remove('d-none');
@@ -75,6 +75,60 @@ document.addEventListener('DOMContentLoaded', function () {
                         showAlertMessage(data.error || 'Login failed!', 'danger');
                     }
                 }
+
+
+            } catch (error) {
+                showAlertMessage('Server connection error!', 'danger');
+                console.error('Error:', error);
+            } finally {
+                submitBtn.disabled = false;
+                spinner.classList.add('d-none');
+                btnText.textContent = 'Send Verification Code';
+            }
+        });
+    }
+    if (verifyForm) {
+        verifyForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const spinner = submitBtn.querySelector('.spinner-border');
+            const btnText = submitBtn.querySelector('.btn-text');
+
+            // حالت Loading
+            submitBtn.disabled = false;
+
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: new FormData(this),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // نمایش پیام موفقیت مانند Register
+                    window.location.href = data.redirect_url;
+                    showAlertMessage(data.notification || 'Login successful!', 'success');
+
+
+                } else {
+                    // نمایش خطاها به سبک Register
+                    if (data.errors) {
+                        for (const field in data.errors) {
+                            showAlertMessage(data.errors[field][0], 'danger');
+                        }
+                    } else {
+                        showAlertMessage(data.error || 'Login failed!', 'danger');
+                    }
+                }
+
+
             } catch (error) {
                 showAlertMessage('Server connection error!', 'danger');
                 console.error('Error:', error);

@@ -63,76 +63,66 @@
 
 
     <!-- Hero Section -->
-    <section id="home" class="hero section">
+<section id="home" class="hero section">
+    <div class="container">
+        <!-- System Messages - نسخه اصلاح شده -->
+        {% if messages %}
+            <script>
+                    showAlertMessage("{{ message|escapejs }}", "{{ message.tags }}");x``
+            </script>
+        {% endif %}
 
+        <div class="row">
+            <div class="col-lg-7 content-col" data-aos="fade-up">
+                <div class="content">
+                    <div class="agency-name">
+                        <h5>EhsanProject</h5>
+                    </div>
 
-        <div class="container">
+                    <div class="main-heading">
+                        <h1>Sending <br/>Email system</h1>
+                    </div>
 
-            <!-- System Messages -->
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <script>
-                            {% for message in messages %}
-                                showAlertMessage("{{ message }}", "{{ message.tags }}");
-                            {% endfor %}
-                        </script>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <div class="row">
-                <div class="col-lg-7 content-col" data-aos="fade-up">
-                    <div class="content">
-                        <div class="agency-name">
-                            <h5>EhsanProject</h5>
-                        </div>
+                    <div class="divider"></div>
 
-                        <div class="main-heading">
-                            <h1>Sending <br/>Email system</h1>
-                        </div>
+                    <div class="description">
+                        <p>Streamline your email communication with our advanced email-sending platform! Whether
+                            you need to send individual emails or manage large-scale bulk campaigns, our tool
+                            makes it simple and efficient.</p>
+                    </div>
 
-                        <div class="divider"></div>
-
-                        <div class="description">
-                            <p>Streamline your email communication with our advanced email-sending platform! Whether
-                                you need to send individual emails or manage large-scale bulk campaigns, our tool
-                                makes it simple and efficient.</p>
-                        </div>
-
-                        <div class="cta-button">
-                            <a href="#register" class="btn">
-                                <span>Get Started</span>
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
+                    <div class="cta-button">
+                        <a href="#register" class="btn">
+                            <span>Get Started</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
+            </div>
 
-                <div class="col-lg-5" data-aos="zoom-out">
-                    <div class="visual-content">
-                        <div class="fluid-shape">
-                            <img src="{% static 'Strategy/assets/img/abstract/abstract-1.webp' %}"
-                                 alt="Abstract Fluid Shape" class="fluid-img"/>
+            <div class="col-lg-5" data-aos="zoom-out">
+                <div class="visual-content">
+                    <div class="fluid-shape">
+                        <img src="{% static 'Strategy/assets/img/abstract/abstract-1.webp' %}"
+                             alt="Abstract Fluid Shape" class="fluid-img"/>
+                    </div>
+
+                    <div class="stats-card">
+                        <div class="stats-number">
+                            <h2>5K</h2>
                         </div>
-
-                        <div class="stats-card">
-                            <div class="stats-number">
-                                <h2>5K</h2>
-                            </div>
-                            <div class="stats-label">
-                                <p>Successful Campaigns</p>
-                            </div>
-                            <div class="stats-arrow">
-                                <a href="#portfolio"><i class="bi bi-arrow-up-right"></i></a>
-                            </div>
+                        <div class="stats-label">
+                            <p>Successful Campaigns</p>
+                        </div>
+                        <div class="stats-arrow">
+                            <a href="#portfolio"><i class="bi bi-arrow-up-right"></i></a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-    <!-- /Hero Section -->
+    </div>
+</section>    <!-- /Hero Section -->
 
 
     <!-- Login Section -->
