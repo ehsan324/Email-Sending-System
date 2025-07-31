@@ -1,16 +1,10 @@
 from django import forms
 
 class UserLoginForm(forms.Form):
-    email = forms.EmailField(
-        widget=forms.EmailInput(attrs={
+    phone_number = forms.CharField(
+        widget=forms.TextInput(attrs={
             'class': 'input100',
-            'placeholder': 'Email'
-        })
-    )
-    password = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'class': 'input100',
-            'placeholder': 'Password'
+            'placeholder': 'Phone Number'
         })
     )
 

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
@@ -5,10 +7,10 @@ from .forms import UserRegistrationForm, UserLoginForm, UserVerifyForm
 from django.contrib import messages
 from .models import User, OtpCode
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib.auth import login, logout
 import random
-from utils import send_otp_code
+from utils import send_otp_code, delete_code
 from ESS.settings import LOGIN_REDIRECT_URL
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
@@ -20,7 +22,8 @@ class BaseVerifyView(View):
     template_name = 'home/index.html'
     success_message = None
     session_key = None
-    failure_redirect = None
+    failure_redirect = 'home/index.html'
+    error_message = None
 
     @method_decorator(csrf_protect)
     def dispatch(self, request, *args, **kwargs):
@@ -36,32 +39,44 @@ class BaseVerifyView(View):
 
     def get(self, request):
         if not self.get_session_data(request):
-            messages.error(request, 'Session expired, StartOver', 'error')
+            self.error_message = 'Session expired, StartOver'
+            messages.error(request, self.error_message, 'error')
             return redirect(self.failure_redirect)
         form = self.form_class()
-        return render(request, self.template_name, {'form': form})
-
+        return render(request, self.template_name, {
+            'form': form,
+            'show_verificate': True,  # Show verification form by default
+            'phone_number': self.get_session_data(request)['phone_number']
+        })
     def post(self, request):
         try:
             session_data = self.get_session_data(request)
             if not session_data:
-                messages.error(request, 'Session expired, StartOver', 'error')
+                self.error_message = 'Session expired, StartOver'
+                messages.error(request, self.error_message, 'error')
                 return redirect(self.failure_redirect)
 
             form = self.form_class(request.POST)
             if not form.is_valid():
-                messages.error(request, 'Incorrect One', 'error')
+                self.error_message = 'Incorrect One'
+                messages.error(request, self.error_message, 'error')
                 return render(request, self.template_name, {'form': form})
 
             code_instance = OtpCode.objects.get(phone_number=session_data['phone_number'])
             if code_instance.is_expired():
-                messages.error(request, 'Otp code has expired', 'error')
+                self.error_message = 'Otp code has expired'
+                messages.error(request, self.error_message, 'error')
                 code_instance.delete()
                 return redirect(self.failure_redirect)
 
             if form.cleaned_data['code'] != code_instance.code:
-                messages.error(request, 'Invalid verification code')
-                return render(request, self.template_name, {'form': form})
+                self.error_message = 'Invalid verification code'
+                messages.error(request, self.error_message, 'error')
+                return render(request, self.template_name, {
+                    'form': form,
+                    'show_verificate': True,  # Ensure verification form stays visible
+                    'phone_number': session_data['phone_number']  # Keep phone number displayed
+                })
 
             self.handle_success(request, session_data)
             code_instance.delete()
@@ -69,7 +84,8 @@ class BaseVerifyView(View):
             return redirect(LOGIN_REDIRECT_URL)
 
         except ObjectDoesNotExist:
-            messages.error(request, 'Invalid session, please try again')
+            self.error_message = 'Invalid session, please try again'
+            messages.error(request, self.error_message, 'error')
             return redirect(self.failure_redirect)
 
 
@@ -77,6 +93,9 @@ class UserRegistrationVerifyView(BaseVerifyView):
     session_key = 'user_registration_info'
     success_message = 'Registered Successful'
     failure_redirect = 'User:user-login'
+
+
+
 
     def handle_success(self, request, session_data):
         User.objects.create_user(**session_data)
@@ -90,7 +109,7 @@ class UserLoginVerifyView(BaseVerifyView):
     failure_redirect = 'User:user-login'
 
     def handle_success(self, request, session_data):
-        user = User.objects.get(email=session_data['email'])
+        user = User.objects.get(phone_number=session_data['phone_number'])
         login(request, user)
 
         if self.session_key in request.session:
@@ -133,6 +152,7 @@ class UserRegistrationView(View):
             random_number = random.randint(1000, 9999)
             send_otp_code(cd['phone_number'], random_number)
             OtpCode.objects.create(phone_number=cd['phone_number'], code=random_number)
+            messages.success(request, 'you registered!', 'success')
 
             return JsonResponse({
                 'success': True,
@@ -147,13 +167,15 @@ class UserRegistrationView(View):
 
 class UserLoginView(View):
     form_class = UserLoginForm
-    template_name = 'User/login.html'
+    template_name = 'home/index.html'
     success_redirect = 'User:user-login-verify'
 
     @method_decorator(csrf_protect)
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('home:homes')
+            return JsonResponse({'success': False,
+                                 'error': 'You are already logged in'},
+                                )
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
@@ -162,25 +184,47 @@ class UserLoginView(View):
 
     def post(self, request):
         form = self.form_class(request.POST)
+
         if not form.is_valid():
-            return render(request, self.template_name, {'form': form})
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid form data',
+                'errors': form.errors.get_json_data()
+            }, status=400)
 
-        cd = form.cleaned_data
-        request.session['login_info'] = {
-            'phone_number': cd['phone_number'],
-            'email': cd['email'],
-        }
 
-        random_number = random.randint(1000, 9999)
-        send_otp_code(cd['phone_number'], random_number)
-        OtpCode.objects.create(phone_number=cd['phone_number'], code=random_number)
+        try:
+            cd = form.cleaned_data
 
-        messages.success(request, 'OTP code sent successfully')
-        return redirect(self.success_redirect)
+            random_number = random.randint(1000, 9999)
+            send_otp_code(cd['phone_number'], random_number)
+            obotpcode = OtpCode.objects.create(phone_number=cd['phone_number'], code=random_number)
+
+            request.session['login_info'] = {
+                'phone_number': cd['phone_number'],
+            }
+            request.session.modified = True
+
+
+            # برای درخواست‌های AJAX
+            return JsonResponse({
+                'success': True,
+                'message': 'OTP code sent successfully',
+                'phone': cd['phone_number']
+
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
+
 
 
 class UserLogoutView(LoginRequiredMixin, View):
     def get(self, request):
         logout(request)
         messages.success(request, 'you logout successfully!!', 'success')
-        return redirect('home:home')
+        return redirect('home:homes')

@@ -51,5 +51,7 @@ class OtpCode(models.Model):
         return f'{self.phone_number} - {self.code}'
 
     def is_expired(self):
-        expire_at = self.created_at + timezone.timedelta(minutes=2)
+        expire_at = self.created_at + timezone.timedelta(minutes=1)
+        print(expire_at)
+        print(timezone.now())
         return timezone.now() > expire_at

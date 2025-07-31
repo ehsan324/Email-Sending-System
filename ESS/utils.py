@@ -1,9 +1,11 @@
 import ssl
 import smtplib
 import logging
+from django.utils import timezone
 from email.message import EmailMessage
 from django.conf import settings
 from Message.email_producer import EmailProducer
+from User.models import OtpCode
 
 logger = logging.getLogger(__name__)
 
@@ -97,5 +99,13 @@ def send_otp_code(phone_number, code):
     pass
 
 
-
+def delete_code(object_id):
+    expire_at = timezone.timedelta(minutes=1)
+    print (expire_at)
+    if expire_at > timezone.now():
+        try:
+            OtpCode.objects.get(id=object_id).delete()
+            raise f"Deleted OTP code {object_id}"
+        except Exception as e:
+            raise f"Failed to delete OTP code {object_id}: {str(e)}"
 
