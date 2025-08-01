@@ -58,13 +58,19 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="#" class="nav-link" data-content="add-contact">
+            <a href="" class="nav-link" data-content="add-contact">
                 <i class="bi bi-person-plus"></i>
                 <span>Add Contact</span>
             </a>
         </li>
         <li class="nav-item">
-            <a href="#" class="nav-link" data-content="create-group">
+            <a href="" class="nav-link" data-content="contact-list">
+                <i class="bi bi-person-lines-fill"></i>
+                <span>Contact List</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="" class="nav-link" data-content="create-group">
                 <i class="bi bi-people"></i>
                 <span>Create Group</span>
             </a>
@@ -317,47 +323,45 @@
                         <h4>Add New Contact</h4>
                     </div>
                     <div class="card-body">
-                        <form id="add-contact-form" method="post" action="">
+                        <form id="add-contact-form" method="post" action="{% url 'Contact:add-contact' %}">
                             {% csrf_token %}
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="contact-name" class="form-label">Full Name</label>
-                                        <input type="text" class="form-control" id="contact-name" name="name" required>
+                                        <label for="first-name" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="first-name" name="first_name"
+                                               required>
+                                        <div class="invalid-feedback">Please enter the first name</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="last-name" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="last-name" name="last_name"
+                                               required>
+                                        <div class="invalid-feedback">Please enter the last name</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="contact-email" class="form-label">Email Address</label>
-                                        <input type="email" class="form-control" id="contact-email" name="email" required>
+                                        <input type="email" class="form-control" id="contact-email" name="email"
+                                               required>
+                                        <div class="invalid-feedback">Please enter a valid email address</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="contact-phone" class="form-label">Phone Number</label>
-                                        <input type="tel" class="form-control" id="contact-phone" name="phone">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="contact-group" class="form-label">Group</label>
-                                        <select class="form-select" id="contact-group" name="group">
-                                            <option value="">Select Group</option>
-                                            <option value="1">Clients</option>
-                                            <option value="2">Team</option>
-                                            <option value="3">Friends</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <label for="contact-notes" class="form-label">Notes</label>
-                                        <textarea class="form-control" id="contact-notes" name="notes" rows="3"></textarea>
+                                        <input type="tel" class="form-control" id="contact-phone" name="phone"
+                                               pattern="[0-9]{10,15}" title="Phone number should be 10-15 digits">
+                                        <div class="invalid-feedback">Please enter a valid phone number (10-15 digits)
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary">Add Contact</button>
-                                    <button type="button" class="btn btn-outline-secondary">Cancel</button>
+                                    <button type="reset" class="btn btn-outline-secondary">Reset Form</button>
                                 </div>
                             </div>
                         </form>
@@ -367,8 +371,34 @@
         </div>
     </div>
 
+    <!-- Contact List Content -->
+    <div class="dashboard-content d-none" id="contact-list-content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4>Contact List</h4>
+                        <div class="search-box">
+                            <input type="text" id="contact-search" class="form-control form-control-sm"
+                                   placeholder="Search contacts...">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="contact-list-container">
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Create Group Content -->
-    <div class="dashboard-content" id="create-group-content">
+    <div class="dashboard-content d-none" id="create-group-content">
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <div class="card">
@@ -435,7 +465,7 @@
     </div>
 
     <!-- Single Message Content -->
-    <div class="dashboard-content" id="single-message-content">
+    <div class="dashboard-content d-none" id="single-message-content">
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <div class="card">
@@ -508,7 +538,7 @@
     </div>
 
     <!-- Group Message Content -->
-    <div class="dashboard-content" id="group-message-content">
+    <div class="dashboard-content d-none" id="group-message-content">
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <div class="card">
@@ -588,7 +618,7 @@
     </div>
 
     <!-- Message History Content -->
-    <div class="dashboard-content" id="message-history-content">
+    <div class="dashboard-content d-none" id="message-history-content">
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -687,7 +717,7 @@
     </div>
 
     <!-- Settings Content -->
-    <div class="dashboard-content" id="settings-content">
+    <div class="dashboard-content d-none" id="settings-content">
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <div class="card">
@@ -851,6 +881,93 @@
 
 <!-- Dashboard JS File -->
 <script src="{% static 'Strategy/assets/js/dashboard.js' %}"></script>
+<script src="{% static 'Strategy/assets/js/addContact.js' %}"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // تابع برای لود و نمایش لیست مخاطبین
+    function loadContactList() {
+        fetch('/contact/contact-list/')
+            .then(response => response.json())
+            .then(data => {
+                renderContactList(data.contacts);
+            })
+            .catch(error => console.error('Error loading contacts:', error));
+    }
+
+    // تابع برای رندر لیست مخاطبین
+    function renderContactList(contacts) {
+        const contactListContainer = document.getElementById('contact-list-container');
+
+        if (!contactListContainer) {
+            console.error('Contact list container not found');
+            return;
+        }
+
+        if (contacts.length === 0) {
+            contactListContainer.innerHTML = `
+                <div class="alert alert-info">No contacts found</div>
+            `;
+            return;
+        }
+
+        let html = `
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        contacts.forEach(contact => {
+            html += `
+                <tr>
+                    <td>${contact.first_name} ${contact.last_name}</td>
+                    <td>${contact.email}</td>
+                    <td>${contact.phone || '-'}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                </tbody>
+            </table>
+        </div>
+        `;
+
+        contactListContainer.innerHTML = html;
+    }
+
+    // مدیریت کلیک روی منوی Contact List
+    const contactListLink = document.querySelector('.nav-link[data-content="contact-list"]');
+    if (contactListLink) {
+        contactListLink.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // مخفی کردن تمام بخش‌ها
+            document.querySelectorAll('.dashboard-content').forEach(content => {
+                content.classList.remove('active');
+                content.classList.add('d-none');
+            });
+
+            // نمایش بخش contact-list
+            const contactListContent = document.getElementById('contact-list-content');
+            if (contactListContent) {
+                contactListContent.classList.remove('d-none');
+                contactListContent.classList.add('active');
+                loadContactList();
+            }
+        });
+    }
+});
+</script>
+
+
 
 </body>
 
