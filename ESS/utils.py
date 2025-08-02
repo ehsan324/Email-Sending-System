@@ -14,73 +14,38 @@ class EmailServiceError(Exception):
     pass
 
 
+import smtplib
+from email.mime.text import MIMEText
+from email.utils import formatdate
+import ssl
+
 class EmailSender:
     def __init__(self):
-        self.smtp_server = getattr(settings, 'EMAIL_SMTP_SERVER', 'smtp.gmail.com')
-        self.smtp_port = getattr(settings, 'EMAIL_SMTP_PORT', 465)
-        self.timeout = getattr(settings, 'EMAIL_TIMEOUT', 30)
-        self.default_sender = getattr(settings, 'DEFAULT_FROM_EMAIL')
+        self.smtp_server = settings.EMAIL_HOST
+        self.smtp_port = int(settings.EMAIL_PORT)  # مطمئن شوید عدد است
+        self.timeout = 30
+        self.ssl_context = ssl.create_default_context()
 
-    def _create_secure_context(self):
-        """Create and configure SSL context"""
-        context = ssl.create_default_context()
-        context.minimum_version = ssl.TLSVersion.TLSv1_2
-        context.verify_mode = ssl.CERT_REQUIRED
-        return context
-
-    def send_email(
-            self,
-            recipient: str,
-            subject: str,
-            body: str,
-            sender: str = None,
-            password: str = None
-    ) -> bool:
-        """
-        Send email with Django integration
-
-        Args:
-            recipient: Email address of recipient
-            subject: Email subject
-            body: Email body content
-            sender: From address (defaults to DEFAULT_FROM_EMAIL)
-            password: SMTP password (defaults to EMAIL_HOST_PASSWORD from settings)
-
-        Returns:
-            bool: True if email sent successfully
-
-        Raises:
-            EmailServiceError: If email sending fails
-        """
-        sender = sender or self.default_sender
-        password = password or getattr(settings, 'EMAIL_HOST_PASSWORD', None)
-
-        if not password:
-            raise EmailServiceError("SMTP password not configured")
+    def send_email(self, recipient, subject, body):
+        msg = MIMEText(body)
+        msg['From'] = settings.DEFAULT_FROM_EMAIL
+        msg['To'] = recipient
+        msg['Date'] = formatdate(localtime=True)
+        msg['Subject'] = subject
 
         try:
-            em = EmailMessage()
-            em['From'] = sender
-            em['To'] = recipient
-            em['Subject'] = subject
-            em.set_content(body)
-
-            context = self._create_secure_context()
-
-            with smtplib.SMTP_SSL(
-                    self.smtp_server,
-                    port=self.smtp_port,
-                    context=context,
-                    timeout=self.timeout
-            ) as smtp:
-                smtp.login(sender, password)
-                smtp.sendmail(sender, recipient, em.as_string())
-                logger.info(f"Email sent to {recipient}")
-                return True
-
+            # اتصال بدون SSL اولیه (برای STARTTLS)
+            with smtplib.SMTP(self.smtp_server, self.smtp_port, timeout=self.timeout) as server:
+                server.ehlo()
+                if settings.EMAIL_USE_TLS:
+                    server.starttls(context=self.ssl_context)
+                    server.ehlo()
+                server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+                server.send_message(msg)
+            return True
         except Exception as e:
-            logger.error(f"Failed to send email to {recipient}: {str(e)}")
-            raise EmailServiceError(f"Email sending failed: {str(e)}")
+            print(f"SMTP Exception: {type(e).__name__}: {e}")
+            raise
 
 # utils/email_service.py
 class EmailService:

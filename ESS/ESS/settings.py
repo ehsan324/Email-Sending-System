@@ -143,9 +143,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587  # For TLS
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'cjkhudacj@gmail.com'
-EMAIL_HOST_PASSWORD = 'zxtq pxxf gcjq brvf'
-DEFAULT_FROM_EMAIL = 'cjkhudacj@gmail.com'
+EMAIL_HOST_USER = 'ehsanalami2003@gmail.com'
+EMAIL_HOST_PASSWORD = 'zncb bute taft pond'
+DEFAULT_FROM_EMAIL = 'ehsanalami2003@gmail.com'
 
 # RabbitMQ settings
 RABBITMQ_HOST = 'localhost'

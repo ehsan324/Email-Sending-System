@@ -2,6 +2,8 @@ import json
 import pika
 from utils import EmailSender
 from django.conf import settings
+import logging
+logger = logging.getLogger(__name__)
 
 class EmailConsumer:
     def __init__(self):
@@ -48,8 +50,6 @@ class EmailConsumer:
                     recipient=email_data['recipient'],
                     subject=email_data['subject'],
                     body=email_data['body'],
-                    sender=email_data.get('sender'),
-                    password=email_data.get('password')
                 )
                 ch.basic_ack(delivery_tag=method.delivery_tag)
                 print('email sent!')

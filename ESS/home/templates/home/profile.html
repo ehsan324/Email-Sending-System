@@ -372,7 +372,6 @@
     </div>
 
     <!-- Contact List Content -->
-
     <div class="dashboard-content" id="contact-list-content">
         <div class="row">
             <div class="col-12">
@@ -537,7 +536,8 @@
                         <h4>Send Single Message</h4>
                     </div>
                     <div class="card-body">
-                        <form id="single-message-form" method="post" action="">
+                        <form id="single-message-form" method="post" action="{% url 'Message:send_email' %}"
+                              enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="row g-3">
                                 <div class="col-12">
@@ -545,33 +545,37 @@
                                         <label for="single-recipient" class="form-label">Recipient</label>
                                         <select class="form-select" id="single-recipient" name="recipient" required>
                                             <option value="">Select Recipient</option>
-                                            <option value="1">John Doe (john.doe@example.com)</option>
-                                            <option value="2">Sarah Smith (sarah.smith@company.com)</option>
-                                            <option value="3">Michael Johnson (michael@client.org)</option>
+                                            {% for contact in request.user.contacts.all %}
+                                                <option value="{{ contact.id }}">{{ contact.name }} ({{ contact.email }})</option>
+                                            {% endfor %}
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
                                         <label for="single-subject" class="form-label">Subject</label>
-                                        <input type="text" class="form-control" id="single-subject" name="subject" required>
+                                        <input type="text" class="form-control" id="single-subject" name="subject"
+                                               required>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
                                         <label for="single-message" class="form-label">Message</label>
-                                        <textarea class="form-control" id="single-message" name="message" rows="6" required></textarea>
+                                        <textarea class="form-control" id="single-message" name="message" rows="6"
+                                                  required></textarea>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
                                         <label for="single-attachment" class="form-label">Attachment</label>
-                                        <input type="file" class="form-control" id="single-attachment" name="attachment">
+                                        <input type="file" class="form-control" id="single-attachment"
+                                               name="attachment">
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="single-schedule" name="schedule">
+                                        <input class="form-check-input" type="checkbox" id="single-schedule"
+                                               name="schedule">
                                         <label class="form-check-label" for="single-schedule">
                                             Schedule this message
                                         </label>
@@ -580,11 +584,13 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <label for="schedule-date" class="form-label">Date</label>
-                                                <input type="date" class="form-control" id="schedule-date" name="schedule_date">
+                                                <input type="date" class="form-control" id="schedule-date"
+                                                       name="schedule_date">
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="schedule-time" class="form-label">Time</label>
-                                                <input type="time" class="form-control" id="schedule-time" name="schedule_time">
+                                                <input type="time" class="form-control" id="schedule-time"
+                                                       name="schedule_time">
                                             </div>
                                         </div>
                                     </div>
@@ -948,6 +954,7 @@
 <script src="{% static 'Strategy/assets/js/addContact.js' %}"></script>
 <script src="{% static 'Strategy/assets/js/contactList.js'%}"></script>
 <script src="{% static 'Strategy/assets/js/createGroup.js' %}"></script>
+<script src="{% static 'Strategy/assets/js/singleEmail.js.js' %}"></script>
 
 
 
