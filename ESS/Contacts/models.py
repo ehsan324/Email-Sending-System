@@ -21,6 +21,7 @@ class Contact(models.Model):
 
 
 class Group(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_groups')
     name = models.CharField(max_length=120, unique=True)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -28,8 +29,12 @@ class Group(models.Model):
     is_active = models.BooleanField(default=True)
     members = models.ManyToManyField(Contact, related_name='members', blank=True)
 
+    class Meta:
+        unique_together = ('user', 'name')
+
+
     def active_members_counts(self):
         return self.members.filter(is_active=True).count()
 
     def __str__(self):
-        return self.name
+        return f"{self.name} by {self.user}"

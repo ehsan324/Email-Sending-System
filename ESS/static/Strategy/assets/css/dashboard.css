@@ -190,13 +190,22 @@
 /*--------------------------------------------------------------
 # Dashboard Content Sections
 --------------------------------------------------------------*/
+/* اضافه کردن این موارد به فایل CSS شما */
 .dashboard-content {
-  display: none;
-  animation: fadeIn 0.5s ease-in-out;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .dashboard-content.active {
-  display: block;
+    display: block;
+    opacity: 1;
+}
+
+/* برای جلوگیری از تداخل با Bootstrap */
+.d-none.dashboard-content {
+    display: none !important;
+    opacity: 0 !important;
 }
 
 /* Stats Cards */

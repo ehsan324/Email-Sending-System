@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.http import JsonResponse
 from django.views import View
 from django.views.generic import CreateView
@@ -8,6 +9,8 @@ from django.views.generic import ListView, UpdateView, DeleteView
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
+import json
+from django.views.decorators.http import require_http_methods
 
 
 
@@ -84,6 +87,7 @@ class CreateGroupView(LoginRequiredMixin, View):
         try:
             data = request.POST
             group = Group.objects.create(
+                user = request.user,
                 name=data.get('group_name'),
                 description=data.get('description'),
             )
@@ -105,3 +109,95 @@ class CreateGroupView(LoginRequiredMixin, View):
                 'message': str(e)
             }, status=400)
 
+
+
+class GroupListView(LoginRequiredMixin, View):
+    def get(self, request):
+        groups = Group.objects.filter(user=request.user).annotate(
+            members_count=Count('members')
+        ).order_by('-created_at')
+
+        groups_data = []
+        for group in groups:
+            groups_data.append({
+                'id': group.id,
+                'name': group.name,
+                'description': group.description,
+                'created_at': group.created_at.strftime('%Y-%m-%d %H:%M'),
+                'members_count': group.members_count
+            })
+
+        return JsonResponse({
+            'status': 'success',
+            'groups': groups_data
+        })
+
+
+class GroupDetailView(LoginRequiredMixin, View):
+    def get(self, request, group_id):
+        try:
+            group = Group.objects.get(id=group_id, user=request.user)
+            members = group.members.all().values('id', 'first_name', 'last_name', 'email')
+
+            return JsonResponse({
+                'status': 'success',
+                'group': {
+                    'id': group.id,
+                    'name': group.name,
+                    'description': group.description,
+                    'created_at': group.created_at.strftime('%Y-%m-%d %H:%M'),
+                },
+                'members': list(members)
+            })
+        except Group.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Group not found'
+            }, status=404)
+
+    def post(self, request, group_id):
+        try:
+            data = json.loads(request.body)
+            group = Group.objects.get(id=group_id, user=request.user)
+
+            group.name = data.get('name', group.name)
+            group.description = data.get('description', group.description)
+            group.save()
+
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Group updated successfully',
+                'group': {
+                    'id': group.id,
+                    'name': group.name,
+                    'description': group.description,
+                    'created_at': group.created_at.strftime('%Y-%m-%d %H:%M'),
+                }
+            })
+        except Group.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Group not found'
+            }, status=404)
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+
+
+class DeleteGroupView(LoginRequiredMixin, View):
+    def post(self, request, group_id):
+        try:
+            group = Group.objects.get(id=group_id, user=request.user)
+            group.delete()
+
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Group deleted successfully'
+            })
+        except Group.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Group not found'
+            }, status=404)
