@@ -33,8 +33,7 @@ INSTALLED_APPS = [
     'User.apps.UserConfig',
     'home.apps.HomeConfig',
 
-    #third app
-    'drf_spectacular',
+
 
 ]
 

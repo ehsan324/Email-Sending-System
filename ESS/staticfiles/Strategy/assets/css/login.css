@@ -1,0 +1,44 @@
+
+.login-card {
+    background: #fff;
+    border: none;
+}
+
+.login-visual-side {
+    background: linear-gradient(135deg, #a9b53c 0%, #457f11 100%);
+}
+
+.login-form-side {
+    background: #ffffff;
+}
+
+.verification-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+}
+
+.verification-inputs .verification-digit {
+    width: 22%;
+    height: 60px;
+    font-size: 1.5rem;
+    margin: 0 4px;
+}
+
+.verification-inputs .verification-digit:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+.features-list i {
+    font-size: 1.2rem;
+}
+
+.message {
+    position: relative;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 350px;
+    max-width: 90%;
+}

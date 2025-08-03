@@ -1,10 +1,43 @@
+const LOG_LEVELS = {
+    DEBUG: 0,
+    INFO: 1,
+    WARN: 2,
+    ERROR: 3
+};
+
+const CURRENT_LOG_LEVEL = LOG_LEVELS.DEBUG;
+
+function logger(level, message, data = null) {
+    if (level >= CURRENT_LOG_LEVEL) {
+        const timestamp = new Date().toISOString();
+        const levelNames = ['DEBUG', 'INFO', 'WARN', 'ERROR'];
+        const levelName = levelNames[level];
+
+        console.log(`[${timestamp}] [${levelName}] ${message}`);
+        if (data) {
+            console.log('Data:', JSON.parse(JSON.stringify(data)));
+        }
+    }
+}
+
+const log = {
+    debug: (msg, data) => logger(LOG_LEVELS.DEBUG, msg, data),
+    info: (msg, data) => logger(LOG_LEVELS.INFO, msg, data),
+    warn: (msg, data) => logger(LOG_LEVELS.WARN, msg, data),
+    error: (msg, data) => logger(LOG_LEVELS.ERROR, msg, data)
+};
+
+console.log("Logger system initialized"); // این باید در هر صورت نمایش داده شود
+log.info("Testing logger"); // این هم باید نمایش داده شود
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize elements
+    log.info('Application initialized');
+
     const tableBody = document.getElementById('groups-table-body');
     const searchInput = document.getElementById('group-search');
     const refreshBtn = document.getElementById('refresh-groups');
     const detailModal = new bootstrap.Modal('#groupDetailModal');
-    let allGroups = []; // Store all groups for filtering
+    let allGroups = [];
 
     // Load initial data
     loadGroups();
@@ -13,32 +46,38 @@ document.addEventListener('DOMContentLoaded', function() {
     searchInput.addEventListener('input', debounce(filterGroups, 300));
     refreshBtn.addEventListener('click', loadGroups);
 
-    // Load groups from server
     function loadGroups() {
+        log.info('Loading groups from server');
         showLoading(true);
 
         fetch('/contact/group-list/')
-            .then(response => response.json())
+            .then(response => {
+                log.debug('Received groups response', {status: response.status});
+                return response.json();
+            })
             .then(data => {
                 if (data.status === 'success') {
+                    log.info('Groups loaded successfully', {count: data.groups.length});
                     allGroups = data.groups;
                     renderGroups(allGroups);
                 } else {
+                    log.error('Failed to load groups', data);
                     throw new Error(data.message || 'Failed to load groups');
                 }
             })
             .catch(error => {
-                console.error('Error loading groups:', error);
+                log.error('Error loading groups:', error);
                 showAlert('Failed to load groups. Please try again.', 'danger');
             })
             .finally(() => {
+                log.debug('Finished loading groups');
                 showLoading(false);
             });
     }
 
-    // Show loading state
     function showLoading(show) {
         if (show) {
+            log.debug('Showing loading state');
             tableBody.innerHTML = `
                 <tr id="loading-row">
                     <td colspan="4" class="text-center py-4">
@@ -51,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
             refreshBtn.disabled = true;
             refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Loading...';
         } else {
+            log.debug('Hiding loading state');
             const loadingEl = document.getElementById('loading-row');
             if (loadingEl) loadingEl.remove();
             refreshBtn.disabled = false;
@@ -58,11 +98,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Render groups in table
     function renderGroups(groups) {
+        log.info('Rendering groups', {count: groups.length});
         tableBody.innerHTML = '';
 
         if (!groups || groups.length === 0) {
+            log.debug('No groups to render');
             tableBody.innerHTML = `
                 <tr>
                     <td colspan="4" class="text-center py-4 text-muted">
@@ -81,15 +122,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${escapeHtml(group.description) || '-'}</td>
                 <td>${group.members_count}</td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary view-btn me-2"
+                    <button class="btn btn-sm btn-outline-primary view-btn me-2" 
                             data-id="${group.id}">
                         <i class="bi bi-eye"></i> View
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary edit-btn me-2"
+                    <button class="btn btn-sm btn-outline-secondary edit-btn me-2" 
                             data-id="${group.id}">
                         <i class="bi bi-pencil"></i> Edit
                     </button>
-                    <button class="btn btn-sm btn-outline-danger delete-btn"
+                    <button class="btn btn-sm btn-outline-danger delete-btn" 
                             data-id="${group.id}">
                         <i class="bi bi-trash"></i> Delete
                     </button>
@@ -98,37 +139,50 @@ document.addEventListener('DOMContentLoaded', function() {
             tableBody.appendChild(row);
         });
 
-        // Add event listeners to action buttons
         addButtonEventListeners();
     }
 
-    // Add event listeners to buttons
     function addButtonEventListeners() {
+        log.debug('Adding button event listeners');
+
         document.querySelectorAll('.view-btn').forEach(btn => {
-            btn.addEventListener('click', () => openDetailModal(btn.dataset.id));
+            btn.addEventListener('click', function() {
+                log.info('View button clicked', {groupId: this.dataset.id});
+                openDetailModal(this.dataset.id);
+            });
         });
 
         document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+            btn.addEventListener('click', function() {
+                log.info('Edit button clicked', {groupId: this.dataset.id});
+                openEditModal(this.dataset.id);
+            });
         });
 
         document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', () => confirmDeleteGroup(btn.dataset.id));
+            btn.addEventListener('click', function() {
+                log.info('Delete button clicked', {groupId: this.dataset.id});
+                confirmDeleteGroup(this.dataset.id);
+            });
         });
     }
 
-    // Filter groups with debounce
     function filterGroups() {
-        const term = this.value.toLowerCase().trim();
+        const term = searchInput.value.toLowerCase().trim();
+        log.info('Filtering groups', {searchTerm: term});
+
         const filtered = allGroups.filter(group =>
             group.name.toLowerCase().includes(term) ||
             (group.description && group.description.toLowerCase().includes(term))
         );
+
+        log.debug('Filtered groups', {count: filtered.length});
         renderGroups(filtered);
     }
 
-    // Open detail modal
     function openDetailModal(groupId) {
+        log.info('Opening group detail modal', {groupId});
+
         const modalElements = {
             title: document.getElementById('group-detail-title'),
             description: document.getElementById('group-detail-description'),
@@ -137,7 +191,6 @@ document.addEventListener('DOMContentLoaded', function() {
             membersList: document.getElementById('group-members-list')
         };
 
-        // Show loading state
         modalElements.membersList.innerHTML = `
             <div class="text-center py-3">
                 <div class="spinner-border text-primary" role="status">
@@ -150,6 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         fetch(`/contact/group-detail/${groupId}/`)
             .then(response => {
+                log.debug('Received group detail response', {status: response.status});
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -157,17 +211,19 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 if (data.status === 'success') {
-                    // Update modal content
+                    log.info('Group details loaded', data.group);
+
                     modalElements.title.textContent = data.group.name;
                     modalElements.description.textContent = data.group.description || 'No description';
                     modalElements.created.textContent = formatDate(data.group.created_at);
                     modalElements.membersCount.textContent = data.members.length;
 
-                    // Render members list
                     modalElements.membersList.innerHTML = '';
                     if (data.members.length === 0) {
+                        log.debug('Group has no members');
                         modalElements.membersList.innerHTML = '<p class="text-muted">No members in this group</p>';
                     } else {
+                        log.debug('Rendering group members', {count: data.members.length});
                         data.members.forEach(member => {
                             const memberItem = document.createElement('div');
                             memberItem.className = 'mb-2';
@@ -179,11 +235,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                     }
                 } else {
+                    log.error('Failed to load group details', data);
                     throw new Error(data.message || 'Failed to load group details');
                 }
             })
             .catch(error => {
-                console.error('Error loading group details:', error);
+                log.error('Error loading group details:', error);
                 modalElements.membersList.innerHTML = `
                     <div class="alert alert-danger">
                         Failed to load group details. Please try again.
@@ -192,12 +249,14 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Open edit modal
     function openEditModal(groupId) {
+        log.info('Opening edit modal', {groupId});
+
         const modalId = 'editGroupModal';
         let modal = document.getElementById(modalId);
 
         if (!modal) {
+            log.debug('Creating edit modal');
             const modalHTML = `
                 <div class="modal fade" id="${modalId}" tabindex="-1">
                     <div class="modal-dialog">
@@ -238,9 +297,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const saveBtn = document.getElementById('save-group-btn');
         const spinner = document.getElementById('save-spinner');
 
-        // Load group data
         fetch(`/contact/group-detail/${groupId}/`)
             .then(response => {
+                log.debug('Received group detail for edit', {status: response.status});
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -248,11 +307,12 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 if (data.status === 'success') {
+                    log.info('Loaded group data for edit', data.group);
+
                     document.getElementById('edit-group-id').value = groupId;
                     document.getElementById('edit-group-name').value = data.group.name;
                     document.getElementById('edit-group-description').value = data.group.description || '';
 
-                    // Set up save button
                     saveBtn.onclick = () => {
                         const formData = {
                             name: document.getElementById('edit-group-name').value.trim(),
@@ -260,11 +320,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         };
 
                         if (!formData.name) {
+                            log.warn('Group name is required');
                             showAlert('Group name is required', 'danger');
                             return;
                         }
 
-                        // Show loading state
+                        log.info('Saving group changes', formData);
                         spinner.classList.remove('d-none');
                         saveBtn.disabled = true;
 
@@ -273,17 +334,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     editModal.show();
                 } else {
+                    log.error('Failed to load group for edit', data);
                     throw new Error(data.message || 'Failed to load group details');
                 }
             })
             .catch(error => {
-                console.error('Error loading group details:', error);
+                log.error('Error loading group for edit:', error);
                 showAlert('Failed to load group details. Please try again.', 'danger');
             });
     }
 
-    // Update group
     function updateGroup(groupId, data, modal) {
+        log.info('Updating group', {groupId, data});
+
         fetch(`/contact/group-detail/${groupId}/`, {
             method: 'POST',
             headers: {
@@ -293,6 +356,7 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify(data)
         })
         .then(response => {
+            log.debug('Received update response', {status: response.status});
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -300,18 +364,21 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             if (data.status === 'success') {
+                log.info('Group updated successfully', data);
                 showAlert('Group updated successfully', 'success');
                 loadGroups();
                 modal.hide();
             } else {
+                log.error('Failed to update group', data);
                 throw new Error(data.message || 'Failed to update group');
             }
         })
         .catch(error => {
-            console.error('Error updating group:', error);
+            log.error('Error updating group:', error);
             showAlert('Failed to update group. Please try again.', 'danger');
         })
         .finally(() => {
+            log.debug('Finished update operation');
             const spinner = document.getElementById('save-spinner');
             const saveBtn = document.getElementById('save-group-btn');
             if (spinner && saveBtn) {
@@ -321,116 +388,130 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Confirm before deleting group
     function confirmDeleteGroup(groupId) {
+        log.info('Confirming group deletion', {groupId});
+
         const modal = setupDeleteModal();
-        const modalInstance = new bootstrap.Modal(modal);
+        document.getElementById('delete-group-id').value = groupId;
 
-        // Set up confirm button
-        const confirmBtn = modal.querySelector('#confirm-delete-btn');
-        confirmBtn.onclick = () => {
-            deleteGroup(groupId);
-            modalInstance.hide();
-        };
+        const confirmBtn = document.getElementById('confirm-delete-btn');
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
 
-        // Set the group ID in the hidden field
-        modal.querySelector('#delete-group-id').value = groupId;
+        document.getElementById('confirm-delete-btn').addEventListener('click', function() {
+            const groupIdToDelete = document.getElementById('delete-group-id').value;
+            log.info('User confirmed deletion', {groupId: groupIdToDelete});
+            deleteGroup(groupIdToDelete, modal);
+        });
 
-        modalInstance.show();
+        modal.show();
     }
 
-    // Setup delete confirmation modal
     function setupDeleteModal() {
+        log.debug('Setting up delete modal');
+
         const modalId = 'deleteGroupModal';
         let modal = document.getElementById(modalId);
 
         if (!modal) {
+            log.debug('Creating delete confirmation modal');
             const modalHTML = `
-            <div class="modal fade" id="${modalId}" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header bg-danger text-white">
-                            <h5 class="modal-title">Confirm Delete</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Are you sure you want to delete this group? This action cannot be undone.</p>
-                            <input type="hidden" id="delete-group-id">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-danger" id="confirm-delete-btn">
-                                <span class="spinner-border spinner-border-sm d-none" id="delete-spinner"></span>
-                                Delete
-                            </button>
+                <div class="modal fade" id="${modalId}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">Confirm Delete</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete this group? This action cannot be undone.</p>
+                                <input type="hidden" id="delete-group-id">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-danger" id="confirm-delete-btn">
+                                    <span class="spinner-border spinner-border-sm d-none" id="delete-spinner"></span>
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             modal = document.getElementById(modalId);
         }
 
-        return modal;
+        return new bootstrap.Modal(modal);
     }
 
-    // Delete group
-    function deleteGroup(groupId) {
-        const deleteBtn = document.querySelector(`.delete-btn[data-id="${groupId}"]`);
-        const spinner = document.getElementById('delete-spinner');
-        const confirmBtn = document.getElementById('confirm-delete-btn');
+    function deleteGroup(groupId, modal) {
+        log.info('Deleting group', {groupId});
 
-        // Show loading state
-        if (deleteBtn) {
-            deleteBtn.disabled = true;
-            deleteBtn.innerHTML = '<i class="bi bi-trash"></i> Deleting...';
-        }
-        if (spinner && confirmBtn) {
-            spinner.classList.remove('d-none');
-            confirmBtn.disabled = true;
-        }
+        const confirmBtn = document.getElementById('confirm-delete-btn');
+        const spinner = document.getElementById('delete-spinner');
+        const deleteIcon = confirmBtn.querySelector('i.bi-trash');
+
+        log.debug('Showing delete loading state');
+        spinner.classList.remove('d-none');
+        deleteIcon.classList.add('d-none');
+        confirmBtn.disabled = true;
 
         fetch(`/contact/delete-group/${groupId}/`, {
-            method: 'POST',
+            method: 'DELETE',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
                 'Content-Type': 'application/json'
             }
         })
         .then(response => {
+            log.debug('Received delete response', {status: response.status});
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json().then(err => {
+                    log.error('Delete failed with server error', err);
+                    throw err;
+                });
             }
             return response.json();
         })
         .then(data => {
             if (data.status === 'success') {
+                log.info('Group deleted successfully', data);
                 showAlert('Group deleted successfully', 'success');
-                loadGroups();
+
+                const row = document.querySelector(`tr[data-group-id="${groupId}"]`);
+                if (row) {
+                    log.debug('Removing group row from table');
+                    row.remove();
+                }
+
+                log.debug('Updating local groups array');
+                allGroups = allGroups.filter(g => g.id != groupId);
+
+                if (modal) {
+                    log.debug('Closing delete modal');
+                    modal.hide();
+                }
             } else {
+                log.error('Delete operation failed', data);
                 throw new Error(data.message || 'Failed to delete group');
             }
         })
         .catch(error => {
-            console.error('Error deleting group:', error);
+            log.error('Error deleting group:', error);
             showAlert('Failed to delete group. Please try again.', 'danger');
         })
         .finally(() => {
-            if (deleteBtn) {
-                deleteBtn.disabled = false;
-                deleteBtn.innerHTML = '<i class="bi bi-trash"></i> Delete';
-            }
-            if (spinner && confirmBtn) {
-                spinner.classList.add('d-none');
-                confirmBtn.disabled = false;
-            }
+            log.debug('Resetting delete UI state');
+            spinner.classList.add('d-none');
+            deleteIcon.classList.remove('d-none');
+            confirmBtn.disabled = false;
         });
     }
 
-    // Helper function to show alerts
     function showAlert(message, type) {
-        // Remove existing alerts
+        log.debug('Showing alert', {message, type});
+
         document.querySelectorAll('.alert-dismissible').forEach(alert => {
             alert.remove();
         });
@@ -450,7 +531,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    // Helper function to escape HTML
     function escapeHtml(unsafe) {
         if (!unsafe) return unsafe;
         return unsafe.toString()
@@ -461,14 +541,12 @@ document.addEventListener('DOMContentLoaded', function() {
             .replace(/'/g, "&#039;");
     }
 
-    // Helper function to format date
     function formatDate(dateString) {
         if (!dateString) return 'N/A';
         const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         return new Date(dateString).toLocaleDateString(undefined, options);
     }
 
-    // Helper function to debounce
     function debounce(func, wait) {
         let timeout;
         return function() {
@@ -480,7 +558,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Helper function to get CSRF token
     function getCookie(name) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);

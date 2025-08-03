@@ -1,10 +1,4 @@
-/**
-* Template Name: Strategy
-* Template URL: https://bootstrapmade.com/strategy-bootstrap-agency-template/
-* Updated: Jun 06 2025 with Bootstrap v5.3.6
-* Author: BootstrapMade.com
-* License: https://bootstrapmade.com/license/
-*/
+
 
 (function() {
   "use strict";
@@ -213,3 +207,42 @@
   document.addEventListener('scroll', navmenuScrollspy);
 
 })();
+
+    function showAlertMessage(message, type) {
+        // پاک کردن پیام‌های قبلی
+        const oldAlerts = document.querySelectorAll('.custom-alert');
+        oldAlerts.forEach(alert => alert.remove());
+
+        const heroSection = document.querySelector('#home .container');
+        if (!heroSection) return;
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `custom-alert alert alert-${type} alert-dismissible fade show`;
+        alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+        alertDiv.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill'} me-2"></i>
+                <span>${message}</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        // نمایش انیمیشن
+        setTimeout(() => {
+            alertDiv.classList.add('show');
+        }, 10);
+
+        // خودکار بسته شدن پس از 5 ثانیه
+        setTimeout(() => {
+            alertDiv.classList.remove('show');
+            setTimeout(() => alertDiv.remove(), 300);
+        }, 5000);
+    }
+
+
+// support
+
+
+
