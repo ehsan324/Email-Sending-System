@@ -712,31 +712,47 @@
                         <h4>Send Group Message</h4>
                     </div>
                     <div class="card-body">
-                        <form id="group-message-form" method="post" action="">
+                        <form id="group-message-form" method="post" action="" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="row g-3">
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label for="group-recipients" class="form-label">Recipients</label>
-                                        <select class="form-select" id="group-recipients" name="recipients" multiple required>
-                                            <option value="1">Clients (24 contacts)</option>
-                                            <option value="2">Team (8 contacts)</option>
-                                            <option value="3">Friends (15 contacts)</option>
-                                            <option value="4">VIP Customers (12 contacts)</option>
+                                        <label for="group-recipient" class="form-label">Group</label>
+                                        <select class="form-select" id="group-recipient" name="recipient" required>
+                                            <option value="">Select Group</option>
+                                            {% for group in request.user.user_groups.all %}
+                                            <option value="{{ group.id }}">{{ group.name }}
+                                            </option>
+                                            {% endfor %}
                                         </select>
-                                        <small class="text-muted">Hold Ctrl/Cmd to select multiple groups</small>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="individual-recipients" class="form-label">Or Select Individual
+                                            Recipients</label>
+                                        <select class="form-select" id="individual-recipients" name="recipients"
+                                                multiple>
+                                            {% for contact in request.user.contacts.all %}
+                                            <option value="{{ contact.id }}">{{ contact.name }} ({{ contact.email }})
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                        <small class="text-muted">Hold Ctrl/Cmd to select multiple recipients</small>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
                                         <label for="group-subject" class="form-label">Subject</label>
-                                        <input type="text" class="form-control" id="group-subject" name="subject" required>
+                                        <input type="text" class="form-control" id="group-subject" name="subject"
+                                               required>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
                                         <label for="group-message" class="form-label">Message</label>
-                                        <textarea class="form-control" id="group-message" name="message" rows="6" required></textarea>
+                                        <textarea class="form-control" id="group-message" name="message" rows="6"
+                                                  required></textarea>
                                     </div>
                                 </div>
                                 <div class="col-12">
@@ -747,13 +763,15 @@
                                 </div>
                                 <div class="col-12">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="group-personalize" name="personalize">
+                                        <input class="form-check-input" type="checkbox" id="group-personalize"
+                                               name="personalize">
                                         <label class="form-check-label" for="group-personalize">
                                             Personalize messages with recipient names
                                         </label>
                                     </div>
                                     <div class="form-check mt-2">
-                                        <input class="form-check-input" type="checkbox" id="group-schedule" name="schedule">
+                                        <input class="form-check-input" type="checkbox" id="group-schedule"
+                                               name="schedule">
                                         <label class="form-check-label" for="group-schedule">
                                             Schedule this message
                                         </label>
@@ -762,11 +780,13 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <label for="group-schedule-date" class="form-label">Date</label>
-                                                <input type="date" class="form-control" id="group-schedule-date" name="schedule_date">
+                                                <input type="date" class="form-control" id="group-schedule-date"
+                                                       name="schedule_date">
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="group-schedule-time" class="form-label">Time</label>
-                                                <input type="time" class="form-control" id="group-schedule-time" name="schedule_time">
+                                                <input type="time" class="form-control" id="group-schedule-time"
+                                                       name="schedule_time">
                                             </div>
                                         </div>
                                     </div>
@@ -1052,7 +1072,7 @@
 <script src="{% static 'Strategy/assets/js/createGroup.js' %}"></script>
 <script src="{% static 'Strategy/assets/js/listGroup.js' %}"></script>
 <script src="{% static 'Strategy/assets/js/singleEmail.js' %}"></script>
-
+<script src="{% static 'Strategy/assets/js/groupemail.js' %}"></script>
 
 
 

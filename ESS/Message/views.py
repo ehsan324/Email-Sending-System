@@ -87,45 +87,84 @@ class EmailSentConfirmationView(View):
         return render(request, 'home/index.html')
 
 
+import json
+from django.http import JsonResponse
+
+
 class SendGroupEmailView(View):
     def get(self, request):
         groups = Group.objects.all()
-        if not groups.exists():  # اگر گروهی وجود ندارد
+        if not groups.exists():
             messages.warning(request, "هیچ گروهی ایجاد نشده است. لطفاً ابتدا گروه‌ها را تعریف کنید.")
         return render(request, 'Message/group_email.html', {'groups': groups})
 
     def post(self, request):
-        group_ids = request.POST.getlist('groups')  # لیست ID گروه‌های انتخاب‌شده
-        subject = request.POST.get('subject')
-        body = request.POST.get('body')
+        # بررسی آیا درخواست AJAX است
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
+        # دریافت داده‌ها از فرم
+        group_ids = request.POST.getlist('groups')
+        subject = request.POST.get('subject')
+        body = request.POST.get('message')  # توجه: در فرم HTML نام فیلد message است نه body
+
+        # اگر گروه انتخاب نشده، بررسی گیرندگان فردی
         if not group_ids:
-            messages.error(request, "لطفاً حداقل یک گروه انتخاب کنید.")
-            return redirect('message:send_group_email')
+            individual_recipients = request.POST.getlist('recipients')
+            if not individual_recipients:
+                if is_ajax:
+                    return JsonResponse({'success': False, 'message': 'لطفاً حداقل یک گروه یا گیرنده انتخاب کنید.'})
+                messages.error(request, "لطفاً حداقل یک گروه یا گیرنده انتخاب کنید.")
+                return redirect('message:send_group_email')
 
         try:
-            # دریافت تمام مخاطبین گروه‌های انتخاب‌شده (بدون تکرار)
-            contacts = Contact.objects.filter(
-                members__id__in=group_ids,
-                is_active=True
-            ).distinct()
+            # اگر گروه انتخاب شده
+            if group_ids:
+                contacts = Contact.objects.filter(
+                    members__id__in=group_ids,
+                    is_active=True
+                ).distinct()
+            else:
+                # اگر گیرندگان فردی انتخاب شده‌اند
+                contacts = Contact.objects.filter(
+                    id__in=individual_recipients,
+                    is_active=True
+                ).distinct()
 
             if not contacts.exists():
+                if is_ajax:
+                    return JsonResponse(
+                        {'success': False, 'message': 'هیچ مخاطب فعالی در گروه‌های انتخاب‌شده وجود ندارد.'})
                 messages.warning(request, "هیچ مخاطب فعالی در گروه‌های انتخاب‌شده وجود ندارد.")
                 return redirect('message:send_group_email')
 
+            # بررسی آیا شخصی‌سازی فعال است
+            personalize = request.POST.get('personalize') == 'on'
+
             producer = EmailProducer()
             for contact in contacts:
+                if personalize:
+                    email_body = f'سلام {contact.first_name},\n\n{body}'
+                else:
+                    email_body = body
+
                 email_data = {
                     'recipient': contact.email,
                     'subject': subject,
-                    'body': f'سلام {contact.first_name},\n\n{body}',
+                    'body': email_body,
                 }
                 producer.publish_email_request(email_data)
 
-            messages.success(request, f"ایمیل با موفقیت به {contacts.count()} مخاطب ارسال شد.")
+            success_message = f"ایمیل با موفقیت به {contacts.count()} مخاطب ارسال شد."
+
+            if is_ajax:
+                return JsonResponse({'success': True, 'message': success_message})
+
+            messages.success(request, success_message)
             return redirect('home:home')
 
         except Group.DoesNotExist:
-            messages.error(request, "یکی از گروه‌های انتخاب‌شده معتبر نیست.")
+            error_message = "یکی از گروه‌های انتخاب‌شده معتبر نیست."
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': error_message})
+            messages.error(request, error_message)
             return redirect('message:send_group_email')
