@@ -24,3 +24,28 @@ class Message(models.Model):
 
     def __str__(self):
         return f'Message from {self.sender.email} to {self.receiver.email} - {self.subject}'
+
+
+
+class EmailLog(models.Model):
+    class Status(models.TextChoices):
+        SENT = 'SENT', 'sent'
+        DELIVERED = 'DELIVERED', 'delivered'
+        FAILED = 'FAILED', 'failed'
+
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='email_logs')
+    recipient = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='received_email_logs')
+    subject = models.CharField(max_length=150)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=10, choices=Status.choices)
+    error_message = models.TextField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['sender', 'timestamp']),
+            models.Index(fields=['status', 'timestamp']),
+        ]
+
+    def __str__(self):
+        return f'{self.recipient.email} - {self.status} - {self.timestamp}'

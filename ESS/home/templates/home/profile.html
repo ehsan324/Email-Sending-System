@@ -809,93 +809,132 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4>Message History</h4>
-                        <div class="filter-options">
-                            <select class="form-select form-select-sm">
-                                <option>All Messages</option>
-                                <option>Sent</option>
-                                <option>Drafts</option>
-                                <option>Scheduled</option>
-                                <option>Failed</option>
-                            </select>
-                            <input type="date" class="form-control form-control-sm">
-                            <button class="btn btn-sm btn-outline-primary">Filter</button>
+                        <h4>تاریخچه ارسال ایمیل</h4>
+                        <div class="filter-options d-flex gap-2 align-items-center mt-3">
+                            <form method="GET" action="{% url 'Message:email_history' %}" id="filterForm"
+                                  class="d-flex flex-wrap gap-2 align-items-center">
+                                <select class="form-select form-select-sm" name="status" id="statusFilter">
+                                    <option value="">همه وضعیت‌ها</option>
+                                    <option value="SENT" {% if current_status == 'SENT' %}selected{% endif %}>ارسال
+                                        شده
+                                    </option>
+                                    <option value="DELIVERED" {% if current_status == 'DELIVERED' %}selected{% endif %}>
+                                        تحویل شده
+                                    </option>
+                                    <option value="FAILED" {% if current_status == 'FAILED' %}selected{% endif %}>
+                                        ناموفق
+                                    </option>
+                                </select>
+                                <select class="form-select form-select-sm" name="recipient" id="recipientFilter">
+                                    <option value="">همه گیرندگان</option>
+                                    {% for contact in contacts %}
+                                        <option value="{{ contact.email }}"
+                                                {% if current_recipient == contact.email %}selected{% endif %}>{{ contact.email }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline-primary">اعمال فیلتر</button>
+                                <a href="{% url 'Message:email_history' %}" class="btn btn-sm btn-outline-secondary">بازنشانی</a>
+                            </form>
                         </div>
                     </div>
                     <div class="card-body">
+                        <!-- بخش نمایش جزئیات ایمیل (مخفی به صورت پیش فرض) -->
+                        <div class="email-detail-container mb-4 d-none" id="emailDetailContainer">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5>جزئیات ایمیل</h5>
+                                    <button type="button" class="btn-close" id="closeEmailDetail"></button>
+                                </div>
+                                <div class="card-body" id="emailDetailContent">
+                                    <!-- محتوای جزئیات ایمیل اینجا بارگذاری می شود -->
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Recipient(s)</th>
-                                        <th>Subject</th>
-                                        <th>Type</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th>تاریخ و زمان</th>
+                                    <th>گیرنده</th>
+                                    <th>موضوع</th>
+                                    <th>وضعیت</th>
+                                    <th>عملیات</th>
+                                </tr>
                                 </thead>
                                 <tbody>
+                                {% for log in email_logs %}
                                     <tr>
-                                        <td>2023-06-15 14:30</td>
-                                        <td>john.doe@example.com</td>
-                                        <td>Weekly Newsletter</td>
-                                        <td>Single</td>
-                                        <td><span class="badge bg-success">Delivered</span></td>
+                                        <td>{{ log.timestamp|date:"Y-m-d H:i" }}</td>
+                                        <td>{{ log.recipient.email }}</td>
+                                        <td>{{ log.subject|truncatewords:5 }}</td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-primary">View</button>
-                                            <button class="btn btn-sm btn-outline-secondary">Resend</button>
+                                            {% if log.status == 'SENT' %}
+                                                <span class="badge bg-info">ارسال شده</span>
+                                            {% elif log.status == 'DELIVERED' %}
+                                                <span class="badge bg-success">تحویل شده</span>
+                                            {% elif log.status == 'FAILED' %}
+                                                <span class="badge bg-danger">ناموفق</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary view-email-btn"
+                                                    data-log-id="{{ log.id }}">مشاهده
+                                            </button>
+                                            {% if log.status == 'FAILED' %}
+                                                <button class="btn btn-sm btn-outline-secondary resend-btn"
+                                                        data-log-id="{{ log.id }}">ارسال مجدد
+                                                </button>
+                                            {% endif %}
                                         </td>
                                     </tr>
+                                {% empty %}
                                     <tr>
-                                        <td>2023-06-14 09:15</td>
-                                        <td>Clients Group (24)</td>
-                                        <td>Special Offer</td>
-                                        <td>Group</td>
-                                        <td><span class="badge bg-success">Delivered</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary">View</button>
-                                            <button class="btn btn-sm btn-outline-secondary">Resend</button>
-                                        </td>
+                                        <td colspan="5" class="text-center">هیچ تاریخچه ایمیلی یافت نشد</td>
                                     </tr>
-                                    <tr>
-                                        <td>2023-06-12 16:45</td>
-                                        <td>sarah.smith@company.com</td>
-                                        <td>Meeting Reminder</td>
-                                        <td>Single</td>
-                                        <td><span class="badge bg-warning">Pending</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary">View</button>
-                                            <button class="btn btn-sm btn-outline-secondary">Resend</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2023-06-10 11:20</td>
-                                        <td>Team Group (8)</td>
-                                        <td>Project Update</td>
-                                        <td>Group</td>
-                                        <td><span class="badge bg-danger">Failed</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary">View</button>
-                                            <button class="btn btn-sm btn-outline-secondary">Resend</button>
-                                        </td>
-                                    </tr>
+                                {% endfor %}
                                 </tbody>
                             </table>
                         </div>
-                        <nav aria-label="Page navigation" class="mt-4">
-                            <ul class="pagination justify-content-center">
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
-                                </li>
-                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">Next</a>
-                                </li>
-                            </ul>
-                        </nav>
+
+                        {% if email_logs.has_other_pages %}
+                            <nav aria-label="Page navigation" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if email_logs.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=
+                                                    {{ email_logs.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_recipient %}&recipient={{ current_recipient }}{% endif %}">قبلی</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" tabindex="-1">قبلی</a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% for i in email_logs.paginator.page_range %}
+                                        {% if email_logs.number == i %}
+                                            <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                                        {% else %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=
+                                                        {{ i }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_recipient %}&recipient={{ current_recipient }}{% endif %}">{{ i }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if email_logs.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=
+                                                    {{ email_logs.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_recipient %}&recipient={{ current_recipient }}{% endif %}">بعدی</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">بعدی</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -1073,6 +1112,7 @@
 <script src="{% static 'Strategy/assets/js/listGroup.js' %}"></script>
 <script src="{% static 'Strategy/assets/js/singleEmail.js' %}"></script>
 <script src="{% static 'Strategy/assets/js/groupemail.js' %}"></script>
+<script src="{% static 'Strategy/assets/js/history.js' %}"></script>
 
 
 

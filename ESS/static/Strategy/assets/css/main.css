@@ -18,7 +18,7 @@
 }
 
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
-:root { 
+:root {
   --background-color: #031119; /* Background color for the entire website, including individual sections */
   --default-color: rgba(255, 255, 255, 0.8); /* Default color used for the majority of the text content across the entire website */
   --heading-color: #e0e9f2; /* Color for headings, subheadings and title throughout the website */
@@ -3776,5 +3776,8 @@ section,
 .starter-section {
   /* Add your styles here */
 }
+
+
+
 
 

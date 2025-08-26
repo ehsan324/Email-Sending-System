@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db import models
 from .managers import UserManager
 from django.utils import timezone
@@ -8,7 +9,15 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=50, blank=True, null=True)
     last_name = models.CharField(max_length=50, blank=True, null=True)
-    phone_number = models.CharField(max_length=11)
+    phone_number = models.CharField(max_length=11,
+                                    unique=True, blank=True, null=True,
+                                    validators=[
+                                        RegexValidator(
+                                            regex=r'^09[0-9]{9}$',
+                                        )
+                                    ]
+
+                                    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)

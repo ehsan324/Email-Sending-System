@@ -30,7 +30,6 @@
     <!-- Main CSS File -->
     <link href="{% static 'Strategy/assets/css/main.css' %}" rel="stylesheet"/>
 
-
     <!-- login CSS File -->
     <link rel="stylesheet" href="{% static 'Strategy/assets/css/login.css' %}">
 </head>
@@ -63,66 +62,67 @@
 
 
     <!-- Hero Section -->
-<section id="home" class="hero section">
-    <div class="container">
-        <!-- System Messages - نسخه اصلاح شده -->
-        {% if messages %}
-            <script>
-                    showAlertMessage("{{ message|escapejs }}", "{{ message.tags }}");x``
-            </script>
-        {% endif %}
+    <section id="home" class="hero section">
+        <div class="container">
+            <!-- System Messages - نسخه اصلاح شده -->
+            {% if messages %}
+                <script>
+                    showAlertMessage("{{ message|escapejs }}", "{{ message.tags }}");
+                    x``
+                </script>
+            {% endif %}
 
-        <div class="row">
-            <div class="col-lg-7 content-col" data-aos="fade-up">
-                <div class="content">
-                    <div class="agency-name">
-                        <h5>EhsanProject</h5>
-                    </div>
+            <div class="row">
+                <div class="col-lg-7 content-col" data-aos="fade-up">
+                    <div class="content">
+                        <div class="agency-name">
+                            <h5>EhsanProject</h5>
+                        </div>
 
-                    <div class="main-heading">
-                        <h1>Sending <br/>Email system</h1>
-                    </div>
+                        <div class="main-heading">
+                            <h1>Sending <br/>Email system</h1>
+                        </div>
 
-                    <div class="divider"></div>
+                        <div class="divider"></div>
 
-                    <div class="description">
-                        <p>Streamline your email communication with our advanced email-sending platform! Whether
-                            you need to send individual emails or manage large-scale bulk campaigns, our tool
-                            makes it simple and efficient.</p>
-                    </div>
+                        <div class="description">
+                            <p>Streamline your email communication with our advanced email-sending platform! Whether
+                                you need to send individual emails or manage large-scale bulk campaigns, our tool
+                                makes it simple and efficient.</p>
+                        </div>
 
-                    <div class="cta-button">
-                        <a href="#register" class="btn">
-                            <span>Get Started</span>
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
+                        <div class="cta-button">
+                            <a href="#register" class="btn">
+                                <span>Get Started</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-lg-5" data-aos="zoom-out">
-                <div class="visual-content">
-                    <div class="fluid-shape">
-                        <img src="{% static 'Strategy/assets/img/abstract/abstract-1.webp' %}"
-                             alt="Abstract Fluid Shape" class="fluid-img"/>
-                    </div>
+                <div class="col-lg-5" data-aos="zoom-out">
+                    <div class="visual-content">
+                        <div class="fluid-shape">
+                            <img src="{% static 'Strategy/assets/img/abstract/abstract-1.webp' %}"
+                                 alt="Abstract Fluid Shape" class="fluid-img"/>
+                        </div>
 
-                    <div class="stats-card">
-                        <div class="stats-number">
-                            <h2>5K</h2>
-                        </div>
-                        <div class="stats-label">
-                            <p>Successful Campaigns</p>
-                        </div>
-                        <div class="stats-arrow">
-                            <a href="#portfolio"><i class="bi bi-arrow-up-right"></i></a>
+                        <div class="stats-card">
+                            <div class="stats-number">
+                                <h2>5K</h2>
+                            </div>
+                            <div class="stats-label">
+                                <p>Successful Campaigns</p>
+                            </div>
+                            <div class="stats-arrow">
+                                <a href="#portfolio"><i class="bi bi-arrow-up-right"></i></a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>    <!-- /Hero Section -->
+    </section>    <!-- /Hero Section -->
 
 
     <!-- Login Section -->
@@ -278,7 +278,6 @@
             </div>
         </div>
     </section>
-
     <!-- /Login Section -->
 
     <!-- Register Section -->
@@ -373,6 +372,7 @@
                                             <i class="bi bi-phone"></i>
                                             <input type="tel" class="form-control" id="phone" name="phone_number"
                                                    placeholder="Phone Number" required
+                                                   pattern="09[0-9]{9}"
                                                    value="{{ form.phone.value|default_if_none:'' }}">
                                         </div>
                                     </div>
@@ -434,11 +434,7 @@
             </div>
         </div>
     </section>
-
-
-
     <!-- /Register Section -->
-
 
 
     <!-- Faq Section -->
@@ -806,7 +802,6 @@
 <!-- Main JS File -->
 <script src="{% static 'Strategy/assets/js/main.js' %}"></script>
 <script src="{% static 'Strategy/assets/js/login.js' %}"></script>
-
 
 
 </body>

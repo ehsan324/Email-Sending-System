@@ -8,6 +8,14 @@ from .models import Message, MessageStatus
 from Contacts.models import Contact, Group
 from User.models import User
 import datetime
+import json
+from django.http import JsonResponse
+from django.views import View
+from django.shortcuts import render
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
+from .models import EmailLog, Message
+from Contacts.models import Contact
 
 
 class SendEmailView(View):
@@ -65,6 +73,13 @@ class SendEmailView(View):
             if attachment:
                 message.attachment.save(attachment.name, attachment)
 
+            EmailLog.objects.create(
+                sender=request.user,
+                recipient=recipient,
+                subject=subject,
+                status=EmailLog.Status.SENT
+            )
+
             # ارسال به صف RabbitMQ (اگر زمانبندی نشده است)
             if not schedule:
                 producer = EmailProducer()
@@ -78,6 +93,14 @@ class SendEmailView(View):
             return redirect('home:homes')
 
         except Exception as e:
+            if 'recipient' in locals():
+                EmailLog.objects.create(
+                    sender=request.user,
+                    recipient=recipient,
+                    subject=subject,
+                    status=EmailLog.Status.FAILED,
+                    error_message=str(e)
+                )
             messages.error(request, f'An error occurred: {str(e)}')
             return redirect('home:homes')
 
@@ -85,10 +108,6 @@ class SendEmailView(View):
 class EmailSentConfirmationView(View):
     def get(self, request):
         return render(request, 'home/index.html')
-
-
-import json
-from django.http import JsonResponse
 
 
 class SendGroupEmailView(View):
@@ -130,6 +149,14 @@ class SendGroupEmailView(View):
                     is_active=True
                 ).distinct()
 
+            for contact in contacts:
+                EmailLog.objects.create(
+                    sender=request.user,
+                    recipient=contact,
+                    subject=subject,
+                    status=EmailLog.Status.SENT
+                )
+
             if not contacts.exists():
                 if is_ajax:
                     return JsonResponse(
@@ -162,9 +189,59 @@ class SendGroupEmailView(View):
             messages.success(request, success_message)
             return redirect('home:home')
 
-        except Group.DoesNotExist:
-            error_message = "یکی از گروه‌های انتخاب‌شده معتبر نیست."
+        except Exception as e:
+
+            error_message = str(e)
             if is_ajax:
                 return JsonResponse({'success': False, 'message': error_message})
             messages.error(request, error_message)
             return redirect('message:send_group_email')
+
+
+class EmailHistoryView(LoginRequiredMixin, View):
+    def get(self, request):
+        status_filter = request.GET.get('status', '')
+        recipient_filter = request.GET.get('recipient', '')
+
+        email_logs = EmailLog.objects.filter(sender=request.user)
+
+        if status_filter:
+            email_logs = email_logs.filter(status=status_filter)
+
+        if recipient_filter:
+            email_logs = email_logs.filter(recipient__email__icontains=recipient_filter)
+
+        paginator = Paginator(email_logs, 20)  # 20 آیتم در هر صفحه
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        contacts = Contact.objects.filter(user=request.user)
+
+        context = {
+            'email_logs': page_obj,
+            'status_choices': EmailLog.Status.choices,
+            'contacts': contacts,
+            'current_status': status_filter,
+            'current_recipient': recipient_filter,
+        }
+
+        return render(request, 'home/profile.html', context)
+
+
+class EmailDetailView(LoginRequiredMixin, View):
+    def get(self, request, log_id):
+        try:
+            email_log = EmailLog.objects.get(id=log_id, sender=request.user)
+            data = {
+                'success': True,
+                'email_log': {
+                    'sender_email': email_log.sender.email,
+                    'recipient_email': email_log.recipient.email,
+                    'subject': email_log.subject,
+                    'timestamp': email_log.timestamp.isoformat(),
+                    'status': email_log.status,
+                    'error_message': email_log.error_message                }
+            }
+            return JsonResponse(data)
+        except EmailLog.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Email log not found'})

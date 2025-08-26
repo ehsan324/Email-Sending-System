@@ -40,52 +40,75 @@ class BaseVerifyView(View):
 
     def get(self, request):
         if not self.get_session_data(request):
-            self.error_message = 'Session expired, StartOver'
-            messages.error(request, self.error_message, 'error')
-            return redirect(self.failure_redirect)
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Session expired, please start over',
+                    'redirect': reverse(self.failure_redirect)
+                }, status=400)
+            else:
+                messages.error(request, 'Session expired, please start over', 'error')
+                return redirect(self.failure_redirect)
+
         form = self.form_class()
         return render(request, self.template_name, {
             'form': form,
-            'show_verificate': True,  # Show verification form by default
-            'phone_number': self.get_session_data(request)['phone_number']
+            'show_verification': True,
+            'phone': self.get_session_data(request)['phone_number']
         })
+
     def post(self, request):
         try:
             session_data = self.get_session_data(request)
             if not session_data:
-                self.error_message = 'Session expired, StartOver'
-                messages.error(request, self.error_message, 'error')
-                return redirect(self.failure_redirect)
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Session expired, please start over',
+                        'redirect': reverse(self.failure_redirect)
+                    }, status=400)
+                else:
+                    messages.error(request, 'Session expired, please start over', 'error')
+                    return redirect(self.failure_redirect)
 
             form = self.form_class(request.POST)
             if not form.is_valid():
-                self.error_message = 'Incorrect One'
-                messages.error(request, self.error_message, 'error')
-                return render(request, self.template_name, {'form': form})
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Invalid verification code',
+                        'errors': form.errors
+                    }, status=400)
+                else:
+                    messages.error(request, 'Invalid verification code', 'error')
+                    return render(request, self.template_name, {
+                        'form': form,
+                        'show_verification': True,
+                        'phone': session_data['phone_number']
+                    })
 
             code_instance = OtpCode.objects.get(phone_number=session_data['phone_number'])
             if code_instance.is_expired():
-                self.error_message = 'Otp code has expired'
-                messages.error(request, self.error_message, 'error')
-                code_instance.delete()
-                return redirect(self.failure_redirect)
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'OTP code has expired',
+                        'redirect': reverse(self.failure_redirect)
+                    }, status=400)
+                else:
+                    messages.error(request, 'OTP code has expired', 'error')
+                    code_instance.delete()
+                    return redirect(self.failure_redirect)
 
-            if form.cleaned_data['code'] != code_instance.code:
-                self.error_message = 'Invalid verification code'
-                messages.error(request, self.error_message, 'error')
-                return render(request, self.template_name, {
-                    'form': form,
-                    'show_verificate': True,  # Ensure verification form stays visible
-                    'phone_number': session_data['phone_number']  # Keep phone number displayed
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': self.success_message,
+                    'redirect': reverse('home:test')  # تغییر به URL صحیح
                 })
-
-            self.handle_success(request, session_data)
-            code_instance.delete()
-            return JsonResponse({
-                'success': True,
-                'message': 'Login Successful',
-                'redirect_url': 'home/index.html'
-            }, status=200)
+            else:
+                messages.success(request, self.success_message)
+                return redirect('home:test')  # تغییر به URL صحیح
 
 
         except ObjectDoesNotExist:
@@ -98,9 +121,6 @@ class UserRegistrationVerifyView(BaseVerifyView):
     session_key = 'user_registration_info'
     success_message = 'Registered Successful'
     failure_redirect = 'User:user-login'
-
-
-
 
     def handle_success(self, request, session_data):
         User.objects.create_user(**session_data)
@@ -136,7 +156,6 @@ class UserRegistrationView(View):
 
     def post(self, request):
         form = self.form_class(request.POST)
-        print("Form errors:", form.errors)  # برای دیباگ
 
         if not form.is_valid():
             return JsonResponse({
@@ -158,12 +177,19 @@ class UserRegistrationView(View):
             send_otp_code(cd['phone_number'], random_number)
             OtpCode.objects.create(phone_number=cd['phone_number'], code=random_number)
 
-            return JsonResponse({
-                'success': True,
-                'phone': cd['phone_number'],
-                'notification': f'We sent OTP code to {cd["phone_number"]}'
-
-            })
+            # اگر درخواست AJAX است، پاسخ JSON برگردان
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'phone': cd['phone_number'],
+                    'notification': f'We sent OTP code to {cd["phone_number"]}'
+                })
+            else:
+                # اگر درخواست معمولی است، صفحه را با فرم تأیید رندر کن
+                return render(request, self.template_name, {
+                    'show_verification': True,
+                    'phone': cd['phone_number']
+                })
         except Exception as e:
             return JsonResponse({
                 'success': False,
@@ -198,7 +224,6 @@ class UserLoginView(View):
                 'errors': form.errors.get_json_data()
             }, status=400)
 
-
         try:
             cd = form.cleaned_data
 
@@ -211,13 +236,11 @@ class UserLoginView(View):
             }
             request.session.modified = True
 
-
             # برای درخواست‌های AJAX
             return JsonResponse({
                 'success': True,
                 'message': 'OTP code sent successfully',
                 'phone': cd['phone_number']
-
 
             })
 
@@ -226,8 +249,6 @@ class UserLoginView(View):
                 'success': False,
                 'error': str(e)
             }, status=500)
-
-
 
 
 class UserLogoutView(LoginRequiredMixin, View):
