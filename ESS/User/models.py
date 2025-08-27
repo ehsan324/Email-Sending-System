@@ -50,17 +50,22 @@ class User(AbstractUser):
     def __str__(self):
         return f'{self.username} - {self.email}'
 
+
 class OtpCode(models.Model):
-    phone_number = models.CharField(max_length=11, unique=True)
-    code = models.PositiveSmallIntegerField(unique=True)
+    phone_number = models.CharField(max_length=11)
+    code = models.PositiveSmallIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
-    expire_ad = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f'{self.phone_number} - {self.code}'
 
     def is_expired(self):
-        expire_at = self.created_at + timezone.timedelta(minutes=1)
-        print(expire_at)
-        print(timezone.now())
-        return timezone.now() > expire_at
+        return timezone.now() > self.created_at + timezone.timedelta(minutes=1)
+
+    @classmethod
+    def delete_expired_codes(cls):
+        """حذف تمام کدهای منقضی شده"""
+        expired_codes = cls.objects.filter(created_at__lt=timezone.now() - timezone.timedelta(minutes=1))
+        count = expired_codes.count()
+        expired_codes.delete()
+        return count

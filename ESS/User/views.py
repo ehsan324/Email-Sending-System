@@ -1,5 +1,4 @@
-from audioop import reverse
-from datetime import datetime
+from django.urls import reverse
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
@@ -58,62 +57,101 @@ class BaseVerifyView(View):
         })
 
     def post(self, request):
+        # حذف کدهای منقضی شده قبل از پردازش
+        OtpCode.delete_expired_codes()
+
         try:
             session_data = self.get_session_data(request)
             if not session_data:
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': False,
-                        'error': 'Session expired, please start over',
-                        'redirect': reverse(self.failure_redirect)
-                    }, status=400)
-                else:
-                    messages.error(request, 'Session expired, please start over', 'error')
-                    return redirect(self.failure_redirect)
+                return self.handle_session_expired(request)
 
             form = self.form_class(request.POST)
             if not form.is_valid():
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': False,
-                        'error': 'Invalid verification code',
-                        'errors': form.errors
-                    }, status=400)
-                else:
-                    messages.error(request, 'Invalid verification code', 'error')
-                    return render(request, self.template_name, {
-                        'form': form,
-                        'show_verification': True,
-                        'phone': session_data['phone_number']
-                    })
+                return self.handle_invalid_form(request, form, session_data)
 
-            code_instance = OtpCode.objects.get(phone_number=session_data['phone_number'])
+            try:
+                code_instance = OtpCode.objects.get(
+                    phone_number=session_data['phone_number'],
+                    code=form.cleaned_data['code']
+                )
+            except OtpCode.DoesNotExist:
+                return self.handle_invalid_code(request, session_data)
+
             if code_instance.is_expired():
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': False,
-                        'error': 'OTP code has expired',
-                        'redirect': reverse(self.failure_redirect)
-                    }, status=400)
-                else:
-                    messages.error(request, 'OTP code has expired', 'error')
-                    code_instance.delete()
-                    return redirect(self.failure_redirect)
+                code_instance.delete()
+                return self.handle_expired_code(request, session_data)
 
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': self.success_message,
-                    'redirect': reverse('home:test')  # تغییر به URL صحیح
-                })
-            else:
-                messages.success(request, self.success_message)
-                return redirect('home:test')  # تغییر به URL صحیح
+            # اگر کد معتبر بود
+            result = self.handle_success(request, session_data)
+            # بعد از استفاده موفق، کد را حذف کنید
+            code_instance.delete()
+            return result
 
+        except Exception as e:
+            return self.handle_unexpected_error(request, e)
 
-        except ObjectDoesNotExist:
-            self.error_message = 'Invalid session, please try again'
-            messages.error(request, self.error_message, 'error')
+    def handle_expired_code(self, request, session_data):
+        error_msg = 'OTP code has expired. Please request a new one.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': error_msg,
+                'redirect': reverse(self.failure_redirect)
+            }, status=400)
+        else:
+            messages.error(request, error_msg, 'error')
+            return redirect(self.failure_redirect)
+
+    def handle_invalid_code(self, request, session_data):
+        error_msg = 'Invalid verification code'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            }, status=400)
+        else:
+            messages.error(request, error_msg, 'error')
+            return render(request, self.template_name, {
+                'form': self.form_class(),
+                'show_verification': True,
+                'phone': session_data['phone_number']
+            })
+
+    def handle_session_expired(self, request):
+        error_msg = 'Session expired, please start over'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': error_msg,
+                'redirect': reverse(self.failure_redirect)
+            }, status=400)
+        else:
+            messages.error(request, error_msg, 'error')
+            return redirect(self.failure_redirect)
+
+    def handle_invalid_form(self, request, form, session_data):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid form data',
+                'errors': {f: e[0] for f, e in form.errors.items()}
+            }, status=400)
+        else:
+            return render(request, self.template_name, {
+                'form': form,
+                'show_verification': True,
+                'phone': session_data['phone_number']
+            })
+
+    def handle_unexpected_error(self, request, e):
+        error_msg = f'An unexpected error occurred: {str(e)}'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            }, status=500)
+        else:
+            messages.error(request, error_msg, 'error')
             return redirect(self.failure_redirect)
 
 
@@ -126,6 +164,16 @@ class UserRegistrationVerifyView(BaseVerifyView):
         User.objects.create_user(**session_data)
         if self.session_key in request.session:
             del request.session[self.session_key]
+
+        messages.success(request, self.success_message, 'success')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': self.success_message,
+                'redirect': reverse('home:homes')
+            })
+        else:
+            return redirect('home:homes')
 
 
 class UserLoginVerifyView(BaseVerifyView):
@@ -140,6 +188,16 @@ class UserLoginVerifyView(BaseVerifyView):
         if self.session_key in request.session:
             del request.session[self.session_key]
 
+        messages.success(request, self.success_message, 'success')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': self.success_message,
+                'redirect': reverse('home:test')
+
+            })
+        else:
+            return redirect('home:test')
 
 class UserRegistrationView(View):
     form_class = UserRegistrationForm
@@ -166,6 +224,7 @@ class UserRegistrationView(View):
 
         try:
             cd = form.cleaned_data
+            OtpCode.objects.filter(phone_number=cd['phone_number']).delete()  # delete old otpcode before sending
             request.session['user_registration_info'] = {
                 'phone_number': cd['phone_number'],
                 'email': cd['email'],
@@ -177,6 +236,8 @@ class UserRegistrationView(View):
             send_otp_code(cd['phone_number'], random_number)
             OtpCode.objects.create(phone_number=cd['phone_number'], code=random_number)
 
+            OtpCode.delete_expired_codes()
+
             # اگر درخواست AJAX است، پاسخ JSON برگردان
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
@@ -185,7 +246,6 @@ class UserRegistrationView(View):
                     'notification': f'We sent OTP code to {cd["phone_number"]}'
                 })
             else:
-                # اگر درخواست معمولی است، صفحه را با فرم تأیید رندر کن
                 return render(request, self.template_name, {
                     'show_verification': True,
                     'phone': cd['phone_number']
