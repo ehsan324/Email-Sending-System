@@ -190,10 +190,11 @@ class UserLoginVerifyView(BaseVerifyView):
 
         messages.success(request, self.success_message, 'success')
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            print('hello')
             return JsonResponse({
                 'success': True,
-                'message': self.success_message,
-                'redirect': reverse('home:test')
+                'notification': self.success_message,
+                'redirect': reverse('home:homes')
 
             })
         else:

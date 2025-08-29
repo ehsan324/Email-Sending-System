@@ -66,10 +66,10 @@
         <div class="container">
             <!-- System Messages - نسخه اصلاح شده -->
             {% if messages %}
-                <script>
-                    showAlertMessage("{{ message|escapejs }}", "{{ message.tags }}");
-                    x``
-                </script>
+            <script>
+                showAlertMessage("{{ message|escapejs }}", "{{ message.tags }}");
+                x``
+            </script>
             {% endif %}
 
             <div class="row">
@@ -178,15 +178,15 @@
                                             {% csrf_token %}
 
                                             {% if form.errors %}
-                                                <div class="alert alert-danger alert-dismissible fade show">
-                                                    {% for field, errors in form.errors.items %}
-                                                        {% for error in errors %}
-                                                            <p class="mb-0">{{ error }}</p>
-                                                        {% endfor %}
-                                                    {% endfor %}
-                                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                                            aria-label="Close"></button>
-                                                </div>
+                                            <div class="alert alert-danger alert-dismissible fade show">
+                                                {% for field, errors in form.errors.items %}
+                                                {% for error in errors %}
+                                                <p class="mb-0">{{ error }}</p>
+                                                {% endfor %}
+                                                {% endfor %}
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                        aria-label="Close"></button>
+                                            </div>
                                             {% endif %}
 
                                             <div class="mb-4">
@@ -253,7 +253,9 @@
                                             </div>
 
                                             <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
-                                                Verify & Continue
+                                                <span class="spinner-border spinner-border-sm d-none" role="status"
+                                                      aria-hidden="true"></span>
+                                                <span class="btn-text">Verify & Continue</span>
                                             </button>
 
                                             <div class="text-center">
@@ -324,13 +326,13 @@
 
                         <div class="row g-3">
                             {% if form.errors %}
-                                <div class="alert alert-danger">
-                                    {% for field, errors in form.errors.items %}
-                                        {% for error in errors %}
-                                            <p>{{ error }}</p>
-                                        {% endfor %}
-                                    {% endfor %}
-                                </div>
+                            <div class="alert alert-danger">
+                                {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                                {% endfor %}
+                            </div>
                             {% endif %}
 
                             <div class="row g-3">
@@ -403,7 +405,7 @@
                     <div class="verify-form-container">
                         <h3 class="text-center mb-4">Verify Your Phone Number</h3>
                         <p class="text-center mb-4">We've sent a verification code to <strong id="user-phone">{{ phone
-                                }}</strong></p>
+                            }}</strong></p>
 
                         <form id="verify-form" method="post" action="{% url 'User:user-register-verify' %}">
                             {% csrf_token %}
@@ -525,7 +527,7 @@
 
 
     <!-- Contact Section -->
-    <section id="contact" class="contact section">
+git    <section id="contact" class="contact section">
 
         <!-- Section Title -->
         <div class="container section-title" data-aos="fade-up">
@@ -600,11 +602,11 @@
                                                    value="{{ form.name.value|default_if_none:'' }}"
                                                    required>
                                             {% if form.name.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {% for error in form.name.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
-                                                </div>
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.name.errors %}
+                                                {{ error }}
+                                                {% endfor %}
+                                            </div>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -622,11 +624,11 @@
                                                    value="{{ form.email.value|default_if_none:'' }}"
                                                    required>
                                             {% if form.email.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {% for error in form.email.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
-                                                </div>
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.email.errors %}
+                                                {{ error }}
+                                                {% endfor %}
+                                            </div>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -644,11 +646,11 @@
                                                    value="{{ form.subject.value|default_if_none:'' }}"
                                                    required>
                                             {% if form.subject.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {% for error in form.subject.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
-                                                </div>
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.subject.errors %}
+                                                {{ error }}
+                                                {% endfor %}
+                                            </div>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -666,23 +668,19 @@
                                                     rows="6"
                                                     required>{{ form.message.value|default_if_none:'' }}</textarea>
                                             {% if form.message.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {% for error in form.message.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
-                                                </div>
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.message.errors %}
+                                                {{ error }}
+                                                {% endfor %}
+                                            </div>
                                             {% endif %}
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Form Submission Status -->
+                                <!-- Loading Indicator -->
                                 <div class="col-12">
                                     <div class="loading" style="display: none;">Sending...</div>
-                                    <div class="error-message" style="display: none;"></div>
-                                    <div class="sent-message" style="display: none;">Your message has been sent. Thank
-                                        you!
-                                    </div>
                                 </div>
 
                                 <!-- Submit Button -->
@@ -798,6 +796,7 @@
 <script src="{% static 'Strategy/assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
 <script src="{% static 'Strategy/assets/vendor/imagesloaded/imagesloaded.pkgd.min.js' %}"></script>
 <script src="{% static 'Strategy/assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+
 
 <!-- Main JS File -->
 <script src="{% static 'Strategy/assets/js/main.js' %}"></script>
