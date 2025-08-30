@@ -269,51 +269,23 @@
                     </div>
                 </div>
 
-                <!-- Recent Contacts -->
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h4>Recent Contacts</h4>
-                        <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                <!-- Your Contacts -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Recent Contacts</h4>
                     </div>
                     <div class="card-body">
-                        <div class="contacts-list">
-                            <div class="contact-item">
-                                <div class="contact-img">
-                                    <img src="{% static 'Strategy/assets/img/profile-img-2.jpg' %}" alt="Contact" class="rounded-circle">
-                                </div>
-                                <div class="contact-info">
-                                    <h5>John Doe</h5>
-                                    <span>john.doe@example.com</span>
-                                </div>
-                                <div class="contact-action">
-                                    <a href="#" class="btn btn-sm btn-outline-primary">Message</a>
-                                </div>
-                            </div>
-                            <div class="contact-item">
-                                <div class="contact-img">
-                                    <img src="{% static 'Strategy/assets/img/profile-img-3.jpg' %}" alt="Contact" class="rounded-circle">
-                                </div>
-                                <div class="contact-info">
-                                    <h5>Sarah Smith</h5>
-                                    <span>sarah.smith@company.com</span>
-                                </div>
-                                <div class="contact-action">
-                                    <a href="#" class="btn btn-sm btn-outline-primary">Message</a>
-                                </div>
-                            </div>
-                            <div class="contact-item">
-                                <div class="contact-img">
-                                    <img src="{% static 'Strategy/assets/img/profile-img-4.jpg' %}" alt="Contact" class="rounded-circle">
-                                </div>
-                                <div class="contact-info">
-                                    <h5>Michael Johnson</h5>
-                                    <span>michael@client.org</span>
-                                </div>
-                                <div class="contact-action">
-                                    <a href="#" class="btn btn-sm btn-outline-primary">Message</a>
-                                </div>
-                            </div>
+                        <!-- Container برای نمایش مخاطبین با JS -->
+                        <div id="contacts-list">
+                            <!-- Contact ها به صورت داینامیک توسط JS اضافه میشن -->
                         </div>
+
+                        <!-- صفحه‌بندی -->
+                        <nav>
+                            <ul class="pagination justify-content-center mt-3" id="pagination">
+                                <!-- شماره صفحات توسط JS اضافه میشن -->
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -624,7 +596,7 @@
     </div>
 
     <!-- Single Message Content -->
-    <div class="dashboard-content d-none" id="single-message-content">
+    <div class="single-message d-none" id="single-message-content">
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <div class="card">
@@ -1104,8 +1076,10 @@
 <!-- Main JS File -->
 <script src="{% static 'Strategy/assets/js/main.js' %}"></script>
 
-<!-- Dashboard JS File -->
-<script src="{% static 'Strategy/assets/js/dashboard.js' %}"></script>
+
+
+
+
 <script src="{% static 'Strategy/assets/js/addContact.js' %}"></script>
 <script src="{% static 'Strategy/assets/js/contactList.js'%}"></script>
 <script src="{% static 'Strategy/assets/js/createGroup.js' %}"></script>
@@ -1113,6 +1087,10 @@
 <script src="{% static 'Strategy/assets/js/singleEmail.js' %}"></script>
 <script src="{% static 'Strategy/assets/js/groupemail.js' %}"></script>
 <script src="{% static 'Strategy/assets/js/history.js' %}"></script>
+<script src="{% static 'Strategy/assets/js/dashboard.js' %}"></script>
+
+
+
 
 
 
