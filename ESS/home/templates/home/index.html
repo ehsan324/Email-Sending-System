@@ -49,7 +49,7 @@
                 <li><a href="#login">Login</a></li>
                 <li><a href="#register">Register</a></li>
                 <li><a href="#FAQ">FAQ</a></li>
-                <li><a href="#contact">Contact</a></li>
+                <li><a href="#cont">Contact</a></li>
             </ul>
             <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
@@ -60,16 +60,21 @@
 
 <main class="main">
 
-
     <!-- Hero Section -->
     <section id="home" class="hero section">
         <div class="container">
-            <!-- System Messages - نسخه اصلاح شده -->
+
+            <!-- نمایش پیام‌های Django -->
             {% if messages %}
-            <script>
-                showAlertMessage("{{ message|escapejs }}", "{{ message.tags }}");
-            </script>
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+            </div>
+            {% endfor %}
             {% endif %}
+
 
             <div class="row">
                 <div class="col-lg-7 content-col" data-aos="fade-up">
@@ -403,8 +408,6 @@
                 <div id="verification-form-container" {% if not show_verification %}class="d-none" {% endif %}>
                     <div class="verify-form-container">
                         <h3 class="text-center mb-4">Verify Your Phone Number</h3>
-                        <p class="text-center mb-4">We've sent a verification code to <strong id="user-phone">{{ phone
-                            }}</strong></p>
 
                         <form id="verify-form" method="post" action="{% url 'User:user-register-verify' %}">
                             {% csrf_token %}
@@ -522,11 +525,12 @@
 
             </div>
         </div>
-    </section><!-- /Faq Section -->
+    </section>
+    <!-- /Faq Section -->
 
 
     <!-- Contact Section -->
-    <section id="contact" class="contact section">
+    <section id="cont" class="contact section">
 
         <!-- Section Title -->
         <div class="container section-title" data-aos="fade-up">
@@ -589,16 +593,6 @@
                         <form method="post" action="{% url 'home:ticket' %}">
                             {% csrf_token %}
 
-                            <!-- نمایش پیام‌های Django -->
-                            {% if messages %}
-                            {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                        aria-label="Close"></button>
-                            </div>
-                            {% endfor %}
-                            {% endif %}
 
                             <div class="row g-3">
                                 <!-- Name Field -->
@@ -705,7 +699,8 @@
         </div>
 
 
-    </section><!-- /Contact Section -->
+    </section>
+    <!-- /Contact Section -->
 
 </main>
 
@@ -757,7 +752,7 @@
                     <li><a href="#login">Login</a></li>
                     <li><a href="#register">Register</a></li>
                     <li><a href="#FAQ">FAQ</a></li>
-                    <li><a href="#cantact">Contact</a></li>
+                    <li><a href="#cant">Contact</a></li>
                 </ul>
             </div>
 
@@ -804,15 +799,16 @@
 <script src="{% static 'Strategy/assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    if (document.querySelector('.alert')) {
-        // اگر پیامی وجود دارد، به فرم contact اسکرول کن
-        const contactSection = document.querySelector('#contact');
-        if(contactSection) {
-            contactSection.scrollIntoView({ behavior: 'smooth' });
+    document.addEventListener('DOMContentLoaded', function() {
+        if (document.querySelector('.alert')) {
+            // اگر پیامی وجود دارد، به فرم contact اسکرول کن
+            const contactSection = document.querySelector('#contact');
+            if(contactSection) {
+                contactSection.scrollIntoView({ behavior: 'smooth' });
+            }
         }
-    }
-});
+    });
+
 </script>
 
 <!-- Main JS File -->

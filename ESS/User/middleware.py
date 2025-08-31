@@ -4,13 +4,11 @@ import random
 from .models import OtpCode
 
 
-
 class CleanExpiredOtpMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        # همیشه OTPهای منقضی شده را پاک کن
         deleted_count = OtpCode.delete_expired_codes()
         if deleted_count > 0:
             print(f"Deleted {deleted_count} expired OTP codes")

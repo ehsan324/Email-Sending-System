@@ -4,7 +4,6 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -15,7 +14,6 @@ SECRET_KEY = 'django-insecure-vol%0c8kkf_c%+^6rzf90b&bqc#132o-k+fm=h!#ox-0s4v_od
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -32,13 +30,11 @@ INSTALLED_APPS = [
     'Message.apps.MessageConfig',
     'User.apps.UserConfig',
     'home.apps.HomeConfig',
-
-
+    'rest_framework',
 
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 MIDDLEWARE = [
@@ -50,7 +46,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    #third
+    # third
     'User.middleware.CleanExpiredOtpMiddleware',
 ]
 
@@ -75,7 +71,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ESS.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -85,7 +80,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -105,7 +99,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -116,7 +109,6 @@ TIME_ZONE = 'Asia/Tehran'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -158,6 +150,6 @@ EMAIL_QUEUE = 'email_tasks'
 
 # Security settings (for production you should set these)
 SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
-CSRF_COOKIE_SECURE = False     # Set to True in production with HTTPS
+CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'

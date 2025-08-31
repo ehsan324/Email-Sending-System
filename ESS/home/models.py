@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Ticket(models.Model):
     name = models.CharField(max_length=100, verbose_name='Name')
     email = models.EmailField(verbose_name='Email Address')

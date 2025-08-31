@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 class Contact(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contacts')
     first_name = models.CharField(max_length=50)
@@ -14,7 +15,7 @@ class Contact(models.Model):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ('user', 'email')  # هر کاربر می‌تواند فقط یک مخاطب با ایمیل خاص داشته باشد
+        unique_together = ('user', 'email')
 
     def __str__(self):
         return f'{self.last_name} - {self.email}'
@@ -31,7 +32,6 @@ class Group(models.Model):
 
     class Meta:
         unique_together = ('user', 'name')
-
 
     def active_members_counts(self):
         return self.members.filter(is_active=True).count()

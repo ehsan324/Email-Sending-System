@@ -2,7 +2,6 @@ from django.contrib import admin
 from Message.models import Message
 from .models import EmailLog
 
-
 admin.site.register(Message)
 
 
@@ -17,13 +16,13 @@ class EmailLogAdmin(admin.ModelAdmin):
     def recipient_email(self, obj):
         return obj.recipient.email
 
-    recipient_email.short_description = 'ایمیل گیرنده'
+    recipient_email.short_description = 'recipient email'
 
     fieldsets = (
-        ('اطلاعات اصلی', {
+        ('main info', {
             'fields': ('sender', 'recipient', 'subject', 'status')
         }),
-        ('جزئیات فنی', {
+        ('technical details', {
             'fields': ('timestamp', 'error_message'),
             'classes': ('collapse',)
         }),

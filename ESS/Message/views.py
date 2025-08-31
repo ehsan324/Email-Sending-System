@@ -20,13 +20,11 @@ from Contacts.models import Contact
 
 class SendEmailView(View):
     def get(self, request):
-        # نمایش فرم
         contacts = request.user.contacts.all()
         return render(request, 'home/profile.html', {'contacts': contacts})
 
     def post(self, request):
         try:
-            # دریافت داده‌های فرم
             recipient_id = request.POST.get('recipient')
             subject = request.POST.get('subject')
             body = request.POST.get('message')
@@ -35,14 +33,12 @@ class SendEmailView(View):
             schedule_date = request.POST.get('schedule_date')
             schedule_time = request.POST.get('schedule_time')
 
-            # دریافت مخاطب
             try:
                 recipient = Contact.objects.get(id=recipient_id, user=request.user)
             except Contact.DoesNotExist:
                 messages.error(request, 'Recipient not found')
                 return redirect('send_email')
 
-            # ایجاد پیام
             message = Message(
                 sender=request.user,
                 receiver=recipient,
@@ -52,7 +48,6 @@ class SendEmailView(View):
             )
 
             if schedule and schedule_date and schedule_time:
-                # اگر زمانبندی شده است
                 try:
                     scheduled_datetime = datetime.datetime.strptime(
                         f"{schedule_date} {schedule_time}",
@@ -69,7 +64,6 @@ class SendEmailView(View):
 
             message.save()
 
-            # اگر فایل ضمیمه وجود دارد
             if attachment:
                 message.attachment.save(attachment.name, attachment)
 
@@ -80,7 +74,6 @@ class SendEmailView(View):
                 status=EmailLog.Status.SENT
             )
 
-            # ارسال به صف RabbitMQ (اگر زمانبندی نشده است)
             if not schedule:
                 producer = EmailProducer()
                 email_data = {
@@ -90,7 +83,7 @@ class SendEmailView(View):
                     'body': body,
                 }
                 producer.publish_email_request(email_data)
-            return redirect('home:homes')
+            return redirect('home:test')
 
         except Exception as e:
             if 'recipient' in locals():
@@ -105,45 +98,35 @@ class SendEmailView(View):
             return redirect('home:homes')
 
 
-class EmailSentConfirmationView(View):
-    def get(self, request):
-        return render(request, 'home/index.html')
-
-
 class SendGroupEmailView(View):
     def get(self, request):
         groups = Group.objects.all()
         if not groups.exists():
-            messages.warning(request, "هیچ گروهی ایجاد نشده است. لطفاً ابتدا گروه‌ها را تعریف کنید.")
+            messages.warning(request, "No Group Created", 'danger')
         return render(request, 'Message/group_email.html', {'groups': groups})
 
     def post(self, request):
-        # بررسی آیا درخواست AJAX است
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
-        # دریافت داده‌ها از فرم
-        group_ids = request.POST.getlist('groups')
+        group_ids = request.POST.getlist('recipient')
         subject = request.POST.get('subject')
-        body = request.POST.get('message')  # توجه: در فرم HTML نام فیلد message است نه body
+        body = request.POST.get('message')
 
-        # اگر گروه انتخاب نشده، بررسی گیرندگان فردی
         if not group_ids:
             individual_recipients = request.POST.getlist('recipients')
             if not individual_recipients:
                 if is_ajax:
-                    return JsonResponse({'success': False, 'message': 'لطفاً حداقل یک گروه یا گیرنده انتخاب کنید.'})
-                messages.error(request, "لطفاً حداقل یک گروه یا گیرنده انتخاب کنید.")
-                return redirect('message:send_group_email')
+                    return JsonResponse({'success': False, 'message': 'select one group at least'})
+                messages.error(request, "Select one group at least", 'danger')
+                return redirect('home:test')
 
         try:
-            # اگر گروه انتخاب شده
             if group_ids:
                 contacts = Contact.objects.filter(
                     members__id__in=group_ids,
                     is_active=True
                 ).distinct()
             else:
-                # اگر گیرندگان فردی انتخاب شده‌اند
                 contacts = Contact.objects.filter(
                     id__in=individual_recipients,
                     is_active=True
@@ -160,17 +143,16 @@ class SendGroupEmailView(View):
             if not contacts.exists():
                 if is_ajax:
                     return JsonResponse(
-                        {'success': False, 'message': 'هیچ مخاطب فعالی در گروه‌های انتخاب‌شده وجود ندارد.'})
-                messages.warning(request, "هیچ مخاطب فعالی در گروه‌های انتخاب‌شده وجود ندارد.")
+                        {'success': False, 'message': 'No active contacts found'})
+                messages.warning(request, "No active contacts found", 'danger')
                 return redirect('message:send_group_email')
 
-            # بررسی آیا شخصی‌سازی فعال است
             personalize = request.POST.get('personalize') == 'on'
 
             producer = EmailProducer()
             for contact in contacts:
                 if personalize:
-                    email_body = f'سلام {contact.first_name},\n\n{body}'
+                    email_body = f'Hello {contact.first_name},\n\n{body}'
                 else:
                     email_body = body
 
@@ -181,7 +163,7 @@ class SendGroupEmailView(View):
                 }
                 producer.publish_email_request(email_data)
 
-            success_message = f"ایمیل با موفقیت به {contacts.count()} مخاطب ارسال شد."
+            success_message = f"email Sent to contact is  {contacts.count()} "
 
             if is_ajax:
                 return JsonResponse({'success': True, 'message': success_message})
@@ -198,36 +180,6 @@ class SendGroupEmailView(View):
             return redirect('message:send_group_email')
 
 
-class EmailHistoryView(LoginRequiredMixin, View):
-    def get(self, request):
-        status_filter = request.GET.get('status', '')
-        recipient_filter = request.GET.get('recipient', '')
-
-        email_logs = EmailLog.objects.filter(sender=request.user)
-
-        if status_filter:
-            email_logs = email_logs.filter(status=status_filter)
-
-        if recipient_filter:
-            email_logs = email_logs.filter(recipient__email__icontains=recipient_filter)
-
-        paginator = Paginator(email_logs, 20)  # 20 آیتم در هر صفحه
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-
-        contacts = Contact.objects.filter(user=request.user)
-
-        context = {
-            'email_logs': page_obj,
-            'status_choices': EmailLog.Status.choices,
-            'contacts': contacts,
-            'current_status': status_filter,
-            'current_recipient': recipient_filter,
-        }
-
-        return render(request, 'home/profile.html', context)
-
-
 class EmailDetailView(LoginRequiredMixin, View):
     def get(self, request, log_id):
         try:
@@ -240,7 +192,7 @@ class EmailDetailView(LoginRequiredMixin, View):
                     'subject': email_log.subject,
                     'timestamp': email_log.timestamp.isoformat(),
                     'status': email_log.status,
-                    'error_message': email_log.error_message                }
+                    'error_message': email_log.error_message}
             }
             return JsonResponse(data)
         except EmailLog.DoesNotExist:

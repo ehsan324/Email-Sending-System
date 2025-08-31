@@ -13,8 +13,6 @@ class UserLoginForm(forms.Form):
     )
 
 
-
-
 class UserRegistrationForm(forms.Form):
     first_name = forms.CharField(
         required=True,
@@ -50,19 +48,16 @@ class UserRegistrationForm(forms.Form):
     def clean_phone_number(self):
         phone_number = self.cleaned_data['phone_number']
 
-        # الگوی شماره تلفن ایرانی
         pattern = r'^09[0-9]{9}$'
 
         if not re.match(pattern, phone_number):
             raise ValidationError('لطفاً یک شماره تلفن معتبر وارد کنید (مانند: 09123456789)')
 
-        # بررسی اینکه شماره تلفن قبلاً استفاده نشده باشد
         if User.objects.filter(phone_number=phone_number).exists():
             raise ValidationError('این شماره تلفن قبلاً ثبت شده است')
 
         return phone_number
 
-    # همچنین می‌توانید clean_email را نیز اضافه کنید برای بررسی یکتایی ایمیل
     def clean_email(self):
         email = self.cleaned_data['email']
 
@@ -70,8 +65,6 @@ class UserRegistrationForm(forms.Form):
             raise ValidationError('این ایمیل قبلاً ثبت شده است')
 
         return email
-
-
 
 
 class UserVerifyForm(forms.Form):

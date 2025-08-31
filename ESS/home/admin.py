@@ -10,7 +10,6 @@ class ContactAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     ordering = ('-created_at',)
 
-    # اختیاری: برای تغییر وضعیت خوانده شده از لیست
     actions = ['mark_as_read']
 
     def mark_as_read(self, request, queryset):

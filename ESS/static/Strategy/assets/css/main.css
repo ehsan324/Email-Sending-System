@@ -3782,10 +3782,58 @@ section,
 
 
 
-#single-message-content {
 
-    display: none;
 
+
+
+/* آیتم‌های لیست (Contacts & Groups) */
+.list-item {
+    background: #2b2b3c;           /* بک‌گراند تیره‌تر */
+    border: 1px solid #3a3a50;     /* حاشیه ملایم */
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* افکت هاور */
+.list-item:hover {
+    background: #3a3a50;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+/* متن اصلی و عنوان */
+.list-item strong {
+    font-size: 1.1rem;
+    color: #ffffff;        /* سفید برای وضوح */
+}
+
+/* توضیحات و تعداد اعضا */
+.list-item small {
+    color: #cfcfe0;        /* رنگ روشن‌تر از سفید برای زیرعنوان */
+    display: block;
+    font-size: 0.875rem;
+    margin-top: 2px;
+}
+
+/* دکمه Message */
+.list-item .btn {
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 0.85rem;
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    background: transparent;
+    transition: all 0.2s ease-in-out;
+}
+.list-item .btn:hover {
+    background: #ffffff;
+    color: #2b2b3c !important;
 }
 
 

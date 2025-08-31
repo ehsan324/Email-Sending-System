@@ -3,7 +3,9 @@ import pika
 from utils import EmailSender
 from django.conf import settings
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 class EmailConsumer:
     def __init__(self):

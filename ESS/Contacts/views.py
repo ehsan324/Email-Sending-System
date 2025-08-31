@@ -1,17 +1,17 @@
 from django.db.models import Count
-from django.http import JsonResponse
 from django.views import View
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
-from .models import Contact, Group
 from .forms import ContactForm
-from django.views.generic import ListView, UpdateView, DeleteView
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 import json
-from django.views.decorators.http import require_http_methods
-
+from django.contrib import messages
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+from .models import Contact, Group
 
 
 class ContactCreateView(LoginRequiredMixin, CreateView):
@@ -21,13 +21,14 @@ class ContactCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('Contact:add-contact')
 
     def form_valid(self, form):
-        form.instance.user = self.request.user  # اختصاص کاربر فعلی به مخاطب
+        form.instance.user = self.request.user
         self.object = form.save()
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
                 'message': 'Contact added successfully!'
             })
+        messages.success(self.request, 'Contact added successfully!', 'success')
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -37,6 +38,7 @@ class ContactCreateView(LoginRequiredMixin, CreateView):
                 'errors': form.errors.get_json_data()
             }, status=400)
         return super().form_invalid(form)
+
 
 class ContactListView(LoginRequiredMixin, View):
     def get(self, request):
@@ -61,8 +63,6 @@ class UpdateContactView(LoginRequiredMixin, View):
     def post(self, request, contact_id):
         contact = get_object_or_404(Contact, id=contact_id, user=request.user)
 
-        # دریافت داده‌ها از JSON
-        import json
         data = json.loads(request.body)
 
         contact.first_name = data.get('first_name')
@@ -77,8 +77,7 @@ class UpdateContactView(LoginRequiredMixin, View):
 class DeleteContactView(LoginRequiredMixin, View):
     def post(self, request, contact_id):
         contact = get_object_or_404(Contact, id=contact_id, user=request.user)
-        contact.is_active = False  # حذف نرم
-        contact.save()
+        contact.delete()
         return JsonResponse({'status': 'success'})
 
 
@@ -87,12 +86,11 @@ class CreateGroupView(LoginRequiredMixin, View):
         try:
             data = request.POST
             group = Group.objects.create(
-                user = request.user,
+                user=request.user,
                 name=data.get('group_name'),
                 description=data.get('description'),
             )
 
-            # اضافه کردن مخاطبین انتخاب شده
             contact_ids = request.POST.getlist('contacts')
             contacts = Contact.objects.filter(id__in=contact_ids, user=request.user)
             group.members.add(*contacts)
@@ -108,7 +106,6 @@ class CreateGroupView(LoginRequiredMixin, View):
                 'status': 'error',
                 'message': str(e)
             }, status=400)
-
 
 
 class GroupListView(LoginRequiredMixin, View):
@@ -201,3 +198,22 @@ class DeleteGroupView(LoginRequiredMixin, View):
                 'status': 'error',
                 'message': 'Group not found'
             }, status=404)
+
+
+
+User = get_user_model()
+
+
+@api_view(['GET'])
+def total_contacts(request):
+    user = request.user
+    count = Contact.objects.filter(user=user, is_active=True).count()
+    return Response({'count': count})
+
+
+@api_view(['GET'])
+def total_groups(request):
+    user = request.user
+    count = Group.objects.filter(user=user, is_active=True).count()
+    return Response({'count': count})
+

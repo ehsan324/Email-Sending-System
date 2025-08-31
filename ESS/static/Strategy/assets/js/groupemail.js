@@ -36,17 +36,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const subject = document.getElementById('group-subject').value;
         const message = document.getElementById('group-message').value;
 
-        // بررسی اینکه حداقل یک گیرنده انتخاب شده باشد
         if (!groupRecipient && individualRecipients.selectedOptions.length === 0) {
             showAlert('لطفاً حداقل یک گروه یا گیرنده انتخاب کنید.', 'danger');
             return;
         }
 
-        // نمایش وضعیت در حال ارسال
         showAlert('در حال ارسال پیام...', 'info');
         console.log('Sending request to:', '/send-group-email/');
-        // ارسال درخواست به سرور
-        fetch('/message/send-group/', {  // مطمئن شوید این URL با URL ویو شما مطابقت دارد
+        fetch('/message/send-group/', {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -56,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('خطای شبکه');
+                throw new Error('Network Error');
             }
             return response.json();
         })
@@ -71,14 +68,12 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error:', error);
-            showAlert('خطا در ارسال پیام. لطفاً دوباره تلاش کنید.', 'danger');
+            showAlert('Error in sending, try it again.', 'danger');
         });
     }
 
-    // تابع ذخیره به عنوان پیش‌نویس
     function saveAsDraft() {
-        // این تابع می‌تواند پیام را در localStorage ذخیره کند
-        // یا یک درخواست به سرور برای ذخیره پیش‌نویس ارسال کند
+
         const formData = {
             recipient: document.getElementById('group-recipient').value,
             recipients: Array.from(document.getElementById('individual-recipients').selectedOptions).map(opt => opt.value),
@@ -91,18 +86,15 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         localStorage.setItem('groupMessageDraft', JSON.stringify(formData));
-        showAlert('پیام به عنوان پیش‌نویس ذخیره شد.', 'success');
+        showAlert('Default message saved.', 'success');
     }
 
-    // تابع برای بازیابی پیش‌نویس (در صورت نیاز)
     function loadDraft() {
         const draft = localStorage.getItem('groupMessageDraft');
         if (draft) {
             const formData = JSON.parse(draft);
-            // پر کردن فرم با داده‌های پیش‌نویس
             document.getElementById('group-recipient').value = formData.recipient;
 
-            // انتخاب گیرندگان فردی
             const individualSelect = document.getElementById('individual-recipients');
             Array.from(individualSelect.options).forEach(option => {
                 option.selected = formData.recipients.includes(option.value);
@@ -123,7 +115,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // تابع کمکی برای دریافت کوکی
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -139,15 +130,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return cookieValue;
     }
 
-    // تابع نمایش اعلان
     function showAlert(message, type) {
-        // حذف اعلان‌های قبلی
         const existingAlert = document.querySelector('.alert');
         if (existingAlert) {
             existingAlert.remove();
         }
 
-        // ایجاد اعلان جدید
         const alertDiv = document.createElement('div');
         alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
         alertDiv.role = 'alert';
@@ -156,11 +144,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         `;
 
-        // قرار دادن اعلان در بالای فرم
         const cardBody = document.querySelector('.card-body');
         cardBody.insertBefore(alertDiv, cardBody.firstChild);
 
-        // حذف خودکار اعلان پس از 5 ثانیه
         setTimeout(() => {
             if (alertDiv.parentNode) {
                 alertDiv.remove();
@@ -168,6 +154,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    // بارگذاری خودکار پیش‌نویس هنگام بارگذاری صفحه
-    // loadDraft(); // در صورت نیاز می‌توانید این خط را فعال کنید
+
 });

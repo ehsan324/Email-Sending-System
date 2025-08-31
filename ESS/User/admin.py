@@ -4,31 +4,30 @@ from User.models import User, OtpCode
 
 
 class UserAdmin(UserBaseAdmin):
+    model = User
+    list_display = ('email', 'first_name', 'last_name', 'phone_number', 'is_active', 'is_admin')
 
-    list_display = ('email', 'phone_number', 'is_admin')
-    list_filter = ('is_admin',)
-    readonly_fields = ('last_login',)
-    ordering = ('email',)
+    search_fields = ('email', 'first_name', 'last_name', 'phone_number')
 
+    list_filter = ('is_active', 'is_admin')
 
     fieldsets = (
-        ('essential', {'fields': ('email', 'phone_number')}),
-        ('permissions', {'fields': ('is_admin', 'is_active', 'is_superuser','last_login', 'groups', 'user_permissions')}),
+        (None, {'fields': ('email', 'password')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'phone_number',)}),
+        ('Permissions', {'fields': ('is_active', 'is_admin', 'groups', 'user_permissions')}),
     )
 
     add_fieldsets = (
-        (None, {'fields': ('email', 'phone_number')}),
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'phone_number', 'first_name', 'last_name', 'password1', 'password2'),
+        }),
     )
 
-    search_fields = ('email',)
-    filter_horizontal = ('groups', 'user_permissions')
+    ordering = ('email',)
+    filter_horizontal = ('groups', 'user_permissions',)
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        is_superuser = request.user.is_superuser
-        if not is_superuser:
-            form.base_fields['is_superuser'].disabled = True
-        return form
 
 admin.site.register(User, UserAdmin)
+
 admin.site.register(OtpCode)

@@ -3,12 +3,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const verificationInputs = document.querySelectorAll('.verification-digit');
     const hiddenCodeInput = document.getElementById('verificate_code');
 
-    // اگر فرم تأیید از ابتدا نمایش داده شده باشد
     if (!document.getElementById('verificate-form-container').classList.contains('d-none')) {
         startCountdown();
     }
 
-    // مدیریت ورود کد تأیید (بدون تغییر)
     verificationInputs.forEach((input, index) => {
         input.addEventListener('input', function () {
             if (this.value.length === 1) {
@@ -30,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
         hiddenCodeInput.value = Array.from(verificationInputs).map(input => input.value).join('');
     }
 
-    // ================= تغییرات اصلی اینجا =================
     if (loginForm) {
         loginForm.addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -39,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const spinner = submitBtn.querySelector('.spinner-border');
             const btnText = submitBtn.querySelector('.btn-text');
 
-            // حالت Loading
             submitBtn.disabled = true;
             spinner.classList.remove('d-none');
             btnText.textContent = 'Sending...';
@@ -57,16 +53,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 const data = await response.json();
 
                 if (data.success) {
-                    // نمایش پیام موفقیت مانند Register
                     showAlertMessage(data.notification || 'Verification code sent!', 'success');
 
-                    // انتقال به فرم تأیید
+
+
                     document.getElementById('login-form-container').classList.add('d-none');
                     document.getElementById('verificate-form-container').classList.remove('d-none');
                     document.getElementById('user-phone_number').textContent = data.phone_number;
                     startCountdown();
                 } else {
-                    // نمایش خطاها به سبک Register
                     if (data.errors) {
                         for (const field in data.errors) {
                             showAlertMessage(data.errors[field][0], 'danger');
@@ -95,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const spinner = submitBtn.querySelector('.spinner-border');
             const btnText = submitBtn.querySelector('.btn-text');
 
-            // حالت Loading
             submitBtn.disabled = false;
 
 
@@ -112,13 +106,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const data = await response.json();
 
                 if (data.success) {
-                    // نمایش پیام موفقیت مانند Register
                     window.location.href = data.redirect_url;
                     showAlertMessage(data.notification || 'Login successful!', 'success');
 
 
                 } else {
-                    // نمایش خطاها به سبک Register
                     if (data.errors) {
                         for (const field in data.errors) {
                             showAlertMessage(data.errors[field][0], 'danger');
@@ -140,7 +132,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ================= توابع بدون تغییر =================
     function startCountdown() {
         let seconds = 60;
         const countdownElement = document.getElementById('countdown');
@@ -172,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('verificate-form-container').classList.add('d-none');
     }
 
-    // تابع نمایش پیام (مشابه Register)
     function showAlertMessage(message, type) {
         const oldAlerts = document.querySelectorAll('.custom-alert');
         oldAlerts.forEach(alert => alert.remove());

@@ -36,19 +36,20 @@
 
 <body class="dashboard-page">
 
+
 <!-- Sidebar -->
 <aside id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-        <div class="user-profile">
-            <div class="profile-img">
-                <img src="{% static 'Strategy/assets/img/profile-img.jpg' %}" alt="Profile Image" class="rounded-circle">
-            </div>
+    {% if user.is_authenticated %}
+    <div class="sidebar-header" style="padding:15px; background:#f1f3f5; border-bottom:1px solid #dcdcdc;">
+        <div class="user-profile" style="display:flex; flex-direction:column; align-items:flex-start;">
             <div class="profile-info">
-                <h5>{{ user.first_name }} {{ user.last_name }}</h5>
-                <span class="text-muted">{{ user.email }}</span>
+                <h5 style="margin:0; font-size:1.2rem; font-weight:600; color:#212529;">{{ user.first_name }} {{ user.last_name }}</h5>
+                <span style="font-size:0.9rem; color:#6c757d;">{{ user.email }}</span>
             </div>
         </div>
     </div>
+    {% endif %}
+
 
     <ul class="sidebar-nav">
         <li class="nav-item">
@@ -93,23 +94,13 @@
                 <span>Group Message</span>
             </a>
         </li>
+
         <li class="nav-item">
-                <a href="#" class="nav-link" data-content="message-history">
-                    <i class="bi bi-clock-history"></i>
-                    <span>Message History</span>
-                </a>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link" data-content="settings">
-                <i class="bi bi-gear"></i>
-                <span>Settings</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{% url 'User:user-logout' %}" class="nav-link logout-link">
+            <button onclick="location.href='{% url 'User:user-logout' %}'"
+                    class="nav-link logout-link">
                 <i class="bi bi-box-arrow-right"></i>
                 <span>Logout</span>
-            </a>
+            </button>
         </li>
     </ul>
 </aside>
@@ -122,119 +113,61 @@
             <i class="bi bi-list"></i>
         </button>
         <h2 class="page-title">Dashboard</h2>
-        <div class="header-actions">
-            <button class="btn btn-primary" data-content="single-message">
-                <i class="bi bi-plus-circle"></i> New Message
-            </button>
-        </div>
     </div>
 
     <!-- Dashboard Content -->
+
+    <div>
+        <!-- نمایش پیام‌های Django -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
     <div class="dashboard-content active" id="dashboard-content">
         <div class="row">
             <!-- Stats Cards -->
-            <div class="col-md-6 col-lg-3">
-                <div class="stats-card">
-                    <div class="stats-icon bg-primary">
-                        <i class="bi bi-envelope"></i>
-                    </div>
-                    <div class="stats-info">
-                        <h3>1,254</h3>
-                        <p>Total Messages</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3">
-                <div class="stats-card">
-                    <div class="stats-icon bg-success">
-                        <i class="bi bi-check-circle"></i>
-                    </div>
-                    <div class="stats-info">
-                        <h3>1,032</h3>
-                        <p>Delivered</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3">
-                <div class="stats-card">
-                    <div class="stats-icon bg-warning">
+            <!-- Contacts -->
+            <div class="col-md-6 col-lg-6 mb-4">
+                <div class="stats-card text-center shadow-sm rounded p-4"
+                     style="background-color:#ffc107; color:white;">
+                    <div class="stats-icon bg-warning text-white rounded-circle mb-3"
+                         style="width:70px; height:70px; display:flex; align-items:center; justify-content:center; margin:auto; font-size:1.8rem;">
                         <i class="bi bi-people"></i>
                     </div>
                     <div class="stats-info">
-                        <h3>87</h3>
+                        <h3 id="contacts">0</h3>
                         <p>Contacts</p>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-3">
-                <div class="stats-card">
-                    <div class="stats-icon bg-info">
+            <!-- Groups -->
+            <div class="col-md-6 col-lg-6 mb-4">
+                <div class="stats-card text-center shadow-sm rounded p-4"
+                     style="background-color:#17a2b8; color:white;">
+                    <div class="stats-icon bg-info text-white rounded-circle mb-3"
+                         style="width:70px; height:70px; display:flex; align-items:center; justify-content:center; margin:auto; font-size:1.8rem;">
                         <i class="bi bi-collection"></i>
                     </div>
                     <div class="stats-info">
-                        <h3>12</h3>
+                        <h3 id="groups">0</h3>
                         <p>Groups</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-4">
-            <!-- Recent Messages -->
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Recent Messages</h4>
-                        <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Recipient</th>
-                                        <th>Subject</th>
-                                        <th>Status</th>
-                                        <th>Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>john.doe@example.com</td>
-                                        <td>Weekly Newsletter</td>
-                                        <td><span class="badge bg-success">Delivered</span></td>
-                                        <td>2 hours ago</td>
-                                    </tr>
-                                    <tr>
-                                        <td>marketing@company.com</td>
-                                        <td>Special Offer</td>
-                                        <td><span class="badge bg-warning">Pending</span></td>
-                                        <td>5 hours ago</td>
-                                    </tr>
-                                    <tr>
-                                        <td>support@client.org</td>
-                                        <td>Service Update</td>
-                                        <td><span class="badge bg-danger">Failed</span></td>
-                                        <td>1 day ago</td>
-                                    </tr>
-                                    <tr>
-                                        <td>all@employees.com</td>
-                                        <td>Meeting Reminder</td>
-                                        <td><span class="badge bg-success">Delivered</span></td>
-                                        <td>2 days ago</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Quick Actions -->
-            <div class="col-lg-4">
+        <div class="dashboard-container">
+
+            <!--Quick Action-->
+            <div class="col-lg-12 actions-col">
                 <div class="card">
                     <div class="card-header">
                         <h4>Quick Actions</h4>
@@ -242,54 +175,60 @@
                     <div class="card-body">
                         <div class="quick-actions">
                             <a href="#" class="action-item" data-content="add-contact">
-                                <div class="action-icon bg-primary">
-                                    <i class="bi bi-person-plus"></i>
-                                </div>
+                                <div class="action-icon bg-primary"><i class="bi bi-person-plus"></i></div>
                                 <span>Add Contact</span>
                             </a>
                             <a href="#" class="action-item" data-content="create-group">
-                                <div class="action-icon bg-success">
-                                    <i class="bi bi-people"></i>
-                                </div>
+                                <div class="action-icon bg-success"><i class="bi bi-people"></i></div>
                                 <span>Create Group</span>
                             </a>
                             <a href="#" class="action-item" data-content="single-message">
-                                <div class="action-icon bg-info">
-                                    <i class="bi bi-envelope"></i>
-                                </div>
+                                <div class="action-icon bg-info"><i class="bi bi-envelope"></i></div>
                                 <span>Send Message</span>
                             </a>
                             <a href="#" class="action-item" data-content="group-message">
-                                <div class="action-icon bg-warning">
-                                    <i class="bi bi-mailbox"></i>
-                                </div>
+                                <div class="action-icon bg-warning"><i class="bi bi-mailbox"></i></div>
                                 <span>Group Message</span>
                             </a>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Your Contacts -->
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">Recent Contacts</h4>
-                    </div>
-                    <div class="card-body">
-                        <!-- Container برای نمایش مخاطبین با JS -->
-                        <div id="contacts-list">
-                            <!-- Contact ها به صورت داینامیک توسط JS اضافه میشن -->
+            <div class="row">
+                <!-- Recent Contacts -->
+                <div class="col-lg-6 contacts-col">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">Recent Contacts</h4>
                         </div>
+                        <div class="card-body">
+                            <div id="contacts-list"></div>
+                            <nav>
+                                <ul class="pagination justify-content-center mt-3" id="pagination"></ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
 
-                        <!-- صفحه‌بندی -->
-                        <nav>
-                            <ul class="pagination justify-content-center mt-3" id="pagination">
-                                <!-- شماره صفحات توسط JS اضافه میشن -->
-                            </ul>
-                        </nav>
+                <!-- Recent Groups -->
+                <div class="col-lg-6 groups-col">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">Recent Groups</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="groups-list"></div>
+                            <nav>
+                                <ul class="pagination justify-content-center mt-3" id="groups-pagination"></ul>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
+
     </div>
 
     <!-- Add Contact Content -->
@@ -368,15 +307,15 @@
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Phone</th>
-                                        <th>Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody id="contacts-table-body">
-                                    <!-- محتوای جدول توسط JavaScript پر می‌شود -->
+                                <!-- محتوای جدول توسط JavaScript پر می‌شود -->
                                 </tbody>
                             </table>
                         </div>
@@ -431,7 +370,8 @@
                 <div class="modal-content">
                     <div class="modal-header bg-danger text-white">
                         <h5 class="modal-title">Confirm Delete</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <p>Are you sure you want to delete this contact? This action cannot be undone.</p>
@@ -542,34 +482,34 @@
         </div>
 
         <!-- Group Detail Modal -->
-<!-- Group Detail Modal -->
-<div class="modal fade" id="groupDetailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="group-detail-title">Group Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Description:</strong> <span id="group-detail-description"></span></p>
-                        <p><strong>Created at:</strong> <span id="group-detail-created"></span></p>
+        <!-- Group Detail Modal -->
+        <div class="modal fade" id="groupDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="group-detail-title">Group Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="col-md-6">
-                        <h6>Members (<span id="members-count">0</span>)</h6>
-                        <div class="members-list" id="group-members-list">
-                            <!-- لیست اعضا توسط JavaScript پر می‌شود -->
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Description:</strong> <span id="group-detail-description"></span></p>
+                                <p><strong>Created at:</strong> <span id="group-detail-created"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Members (<span id="members-count">0</span>)</h6>
+                                <div class="members-list" id="group-members-list">
+                                    <!-- لیست اعضا توسط JavaScript پر می‌شود -->
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
         </div>
-    </div>
-</div>
         <!-- Delete Confirmation Modal -->
         <div class="modal fade" id="deleteGroupModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
@@ -596,7 +536,7 @@
     </div>
 
     <!-- Single Message Content -->
-    <div class="single-message d-none" id="single-message-content">
+    <div class="dashboard-content d-none" id="single-message-content">
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <div class="card">
@@ -614,7 +554,8 @@
                                         <select class="form-select" id="single-recipient" name="recipient" required>
                                             <option value="">Select Recipient</option>
                                             {% for contact in request.user.contacts.all %}
-                                                <option value="{{ contact.id }}">{{ contact.name }} ({{ contact.email }})</option>
+                                            <option value="{{ contact.id }}">{{ contact.name }} ({{ contact.email }})
+                                            </option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -775,293 +716,7 @@
         </div>
     </div>
 
-    <!-- Message History Content -->
-    <div class="dashboard-content d-none" id="message-history-content">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>تاریخچه ارسال ایمیل</h4>
-                        <div class="filter-options d-flex gap-2 align-items-center mt-3">
-                            <form method="GET" action="{% url 'Message:email_history' %}" id="filterForm"
-                                  class="d-flex flex-wrap gap-2 align-items-center">
-                                <select class="form-select form-select-sm" name="status" id="statusFilter">
-                                    <option value="">همه وضعیت‌ها</option>
-                                    <option value="SENT" {% if current_status == 'SENT' %}selected{% endif %}>ارسال
-                                        شده
-                                    </option>
-                                    <option value="DELIVERED" {% if current_status == 'DELIVERED' %}selected{% endif %}>
-                                        تحویل شده
-                                    </option>
-                                    <option value="FAILED" {% if current_status == 'FAILED' %}selected{% endif %}>
-                                        ناموفق
-                                    </option>
-                                </select>
-                                <select class="form-select form-select-sm" name="recipient" id="recipientFilter">
-                                    <option value="">همه گیرندگان</option>
-                                    {% for contact in contacts %}
-                                        <option value="{{ contact.email }}"
-                                                {% if current_recipient == contact.email %}selected{% endif %}>{{ contact.email }}</option>
-                                    {% endfor %}
-                                </select>
-                                <button type="submit" class="btn btn-sm btn-outline-primary">اعمال فیلتر</button>
-                                <a href="{% url 'Message:email_history' %}" class="btn btn-sm btn-outline-secondary">بازنشانی</a>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <!-- بخش نمایش جزئیات ایمیل (مخفی به صورت پیش فرض) -->
-                        <div class="email-detail-container mb-4 d-none" id="emailDetailContainer">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5>جزئیات ایمیل</h5>
-                                    <button type="button" class="btn-close" id="closeEmailDetail"></button>
-                                </div>
-                                <div class="card-body" id="emailDetailContent">
-                                    <!-- محتوای جزئیات ایمیل اینجا بارگذاری می شود -->
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                <tr>
-                                    <th>تاریخ و زمان</th>
-                                    <th>گیرنده</th>
-                                    <th>موضوع</th>
-                                    <th>وضعیت</th>
-                                    <th>عملیات</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for log in email_logs %}
-                                    <tr>
-                                        <td>{{ log.timestamp|date:"Y-m-d H:i" }}</td>
-                                        <td>{{ log.recipient.email }}</td>
-                                        <td>{{ log.subject|truncatewords:5 }}</td>
-                                        <td>
-                                            {% if log.status == 'SENT' %}
-                                                <span class="badge bg-info">ارسال شده</span>
-                                            {% elif log.status == 'DELIVERED' %}
-                                                <span class="badge bg-success">تحویل شده</span>
-                                            {% elif log.status == 'FAILED' %}
-                                                <span class="badge bg-danger">ناموفق</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary view-email-btn"
-                                                    data-log-id="{{ log.id }}">مشاهده
-                                            </button>
-                                            {% if log.status == 'FAILED' %}
-                                                <button class="btn btn-sm btn-outline-secondary resend-btn"
-                                                        data-log-id="{{ log.id }}">ارسال مجدد
-                                                </button>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="5" class="text-center">هیچ تاریخچه ایمیلی یافت نشد</td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {% if email_logs.has_other_pages %}
-                            <nav aria-label="Page navigation" class="mt-4">
-                                <ul class="pagination justify-content-center">
-                                    {% if email_logs.has_previous %}
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page=
-                                                    {{ email_logs.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_recipient %}&recipient={{ current_recipient }}{% endif %}">قبلی</a>
-                                        </li>
-                                    {% else %}
-                                        <li class="page-item disabled">
-                                            <a class="page-link" href="#" tabindex="-1">قبلی</a>
-                                        </li>
-                                    {% endif %}
-
-                                    {% for i in email_logs.paginator.page_range %}
-                                        {% if email_logs.number == i %}
-                                            <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
-                                        {% else %}
-                                            <li class="page-item">
-                                                <a class="page-link" href="?page=
-                                                        {{ i }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_recipient %}&recipient={{ current_recipient }}{% endif %}">{{ i }}</a>
-                                            </li>
-                                        {% endif %}
-                                    {% endfor %}
-
-                                    {% if email_logs.has_next %}
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page=
-                                                    {{ email_logs.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_recipient %}&recipient={{ current_recipient }}{% endif %}">بعدی</a>
-                                        </li>
-                                    {% else %}
-                                        <li class="page-item disabled">
-                                            <a class="page-link" href="#">بعدی</a>
-                                        </li>
-                                    {% endif %}
-                                </ul>
-                            </nav>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Settings Content -->
-    <div class="dashboard-content d-none" id="settings-content">
-        <div class="row">
-            <div class="col-lg-8 mx-auto">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Account Settings</h4>
-                    </div>
-                    <div class="card-body">
-                        <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">Profile</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">Security</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">Notifications</button>
-                            </li>
-                        </ul>
-                        <div class="tab-content mt-4" id="settingsTabsContent">
-                            <div class="tab-pane fade show active" id="profile" role="tabpanel">
-                                <form id="profile-form" method="post" action="">
-                                    {% csrf_token %}
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="first-name" class="form-label">First Name</label>
-                                                <input type="text" class="form-control" id="first-name" name="first_name" value="{{ user.first_name }}" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="last-name" class="form-label">Last Name</label>
-                                                <input type="text" class="form-control" id="last-name" name="last_name" value="{{ user.last_name }}" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="email" class="form-label">Email Address</label>
-                                                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="phone" class="form-label">Phone Number</label>
-                                                <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.phone_number }}">
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="bio" class="form-label">Bio</label>
-                                                <textarea class="form-control" id="bio" name="bio" rows="3">Brief description about yourself</textarea>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="profile-pic" class="form-label">Profile Picture</label>
-                                                <input type="file" class="form-control" id="profile-pic" name="profile_pic">
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">Update Profile</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="tab-pane fade" id="security" role="tabpanel">
-                                <form id="security-form" method="post" action="">
-                                    {% csrf_token %}
-                                    <div class="row g-3">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="current-password" class="form-label">Current Password</label>
-                                                <input type="password" class="form-control" id="current-password" name="current_password" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="new-password" class="form-label">New Password</label>
-                                                <input type="password" class="form-control" id="new-password" name="new_password" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="confirm-password" class="form-label">Confirm Password</label>
-                                                <input type="password" class="form-control" id="confirm-password" name="confirm_password" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="two-factor" name="two_factor">
-                                                <label class="form-check-label" for="two-factor">
-                                                    Enable Two-Factor Authentication
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">Update Security</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="tab-pane fade" id="notifications" role="tabpanel">
-                                <form id="notifications-form" method="post" action="">
-                                    {% csrf_token %}
-                                    <div class="row g-3">
-                                        <div class="col-12">
-                                            <h5>Email Notifications</h5>
-                                            <div class="form-check form-switch mb-3">
-                                                <input class="form-check-input" type="checkbox" id="email-messages" name="email_messages" checked>
-                                                <label class="form-check-label" for="email-messages">New messages received</label>
-                                            </div>
-                                            <div class="form-check form-switch mb-3">
-                                                <input class="form-check-input" type="checkbox" id="email-promotions" name="email_promotions" checked>
-                                                <label class="form-check-label" for="email-promotions">Promotions and offers</label>
-                                            </div>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="email-updates" name="email_updates">
-                                                <label class="form-check-label" for="email-updates">Product updates</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 mt-4">
-                                            <h5>Push Notifications</h5>
-                                            <div class="form-check form-switch mb-3">
-                                                <input class="form-check-input" type="checkbox" id="push-messages" name="push_messages" checked>
-                                                <label class="form-check-label" for="push-messages">New messages received</label>
-                                            </div>
-                                            <div class="form-check form-switch mb-3">
-                                                <input class="form-check-input" type="checkbox" id="push-reminders" name="push_reminders">
-                                                <label class="form-check-label" for="push-reminders">Reminders</label>
-                                            </div>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="push-updates" name="push_updates">
-                                                <label class="form-check-label" for="push-updates">System updates</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 mt-4">
-                                            <button type="submit" class="btn btn-primary">Update Notifications</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </main>
 <!-- End Main Content -->
 
@@ -1077,9 +732,6 @@
 <script src="{% static 'Strategy/assets/js/main.js' %}"></script>
 
 
-
-
-
 <script src="{% static 'Strategy/assets/js/addContact.js' %}"></script>
 <script src="{% static 'Strategy/assets/js/contactList.js'%}"></script>
 <script src="{% static 'Strategy/assets/js/createGroup.js' %}"></script>
@@ -1088,10 +740,31 @@
 <script src="{% static 'Strategy/assets/js/groupemail.js' %}"></script>
 <script src="{% static 'Strategy/assets/js/history.js' %}"></script>
 <script src="{% static 'Strategy/assets/js/dashboard.js' %}"></script>
+<script src="{% static 'Strategy/assets/js/recentGroup.js' %}"></script>
 
 
+<script>
+    async function loadStats() {
+        const endpoints = {
+            'total-messages': 'http://127.0.0.1:8000/contact/api/messages/',
+            'delivered-messages': 'http://127.0.0.1:8000/contact/api/delivered-messages/',
+            'contacts': 'http://127.0.0.1:8000/contact/api/contacts/',
+            'groups': 'http://127.0.0.1:8000/contact/api/groups/'
+        };
 
+        for (const [id, url] of Object.entries(endpoints)) {
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                document.getElementById(id).innerText = data.count;
+            } catch (e) {
+                console.error(`Error fetching ${id}:`, e);
+            }
+        }
+    }
 
+    document.addEventListener('DOMContentLoaded', loadStats);
+</script>
 
 
 </body>

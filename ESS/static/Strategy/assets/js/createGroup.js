@@ -2,16 +2,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('create-group-form');
     const contactsContainer = document.getElementById('contacts-selection');
 
-    // بارگذاری مخاطبین هنگام نمایش فرم
     document.querySelector('[data-content="create-group"]').addEventListener('click', loadContacts);
 
-    // ارسال فرم
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         createGroup();
     });
 
-    // تابع بارگذاری مخاطبین
     function loadContacts() {
         fetch('/contact/contact-list/')
             .then(response => response.json())
@@ -28,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // نمایش لیست مخاطبین
     function renderContacts(contacts) {
         if (!contacts || contacts.length === 0) {
             contactsContainer.innerHTML = `
@@ -55,23 +51,19 @@ document.addEventListener('DOMContentLoaded', function() {
         contactsContainer.innerHTML = html;
     }
 
-    // تابع ایجاد گروه
     function createGroup() {
         const formData = new FormData(form);
         const submitBtn = document.getElementById('submit-group');
         const spinner = document.getElementById('group-spinner');
 
-        // اعتبارسنجی
         if (!formData.get('group_name') || !formData.getAll('contacts').length) {
             form.classList.add('was-validated');
             return;
         }
 
-        // نمایش اسپینر
         submitBtn.disabled = true;
         spinner.classList.remove('d-none');
 
-        // ارسال درخواست
         fetch('/contact/create-group/', {
             method: 'POST',
             body: formData,
@@ -83,10 +75,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.status === 'success') {
                 showAlert('Group created successfully!', 'success');
-                // ریست فرم
                 form.reset();
                 form.classList.remove('was-validated');
-                // رفتن به لیست گروه‌ها یا انجام عملیات دیگر
             } else {
                 throw new Error(data.message || 'Failed to create group');
             }
@@ -117,6 +107,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function getCookie(name) {
-        // تابع موجود برای دریافت CSRF Token
     }
 });

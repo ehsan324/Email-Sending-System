@@ -2,6 +2,7 @@ import json
 import pika
 from django.conf import settings
 
+
 class EmailProducer:
     def __init__(self):
         self.connection_params = pika.ConnectionParameters(

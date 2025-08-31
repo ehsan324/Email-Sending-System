@@ -1,16 +1,25 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
 from .forms import TicketForm
 from django.contrib import messages
 from utils import EmailService
 
+
 class HomeView(View):
     def get(self, request):
         return render(request, 'home/index.html')
 
-class TestView(View):
+
+class TestView(LoginRequiredMixin, View):
+    login_url = 'home:homes'
+
     def get(self, request):
-        return render(request, 'home/profile.html')
+        user = request.user
+        context = {
+            'user': user,
+        }
+        return render(request, 'home/profile.html', context)
 
 
 class TicketView(View):

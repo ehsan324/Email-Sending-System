@@ -1,15 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
     const contactsPerPage = 5;
     let contacts = [];
-    let currentPage = 1;
+    let currentContactPage = 1;
 
     const contactsList = document.getElementById('contacts-list');
-    const pagination = document.getElementById('pagination');
-    const dashboardContent = document.getElementById('dashboard-content');
-    const singleMessageContent = document.getElementById('single-message-content');
-    const recipientSelect = document.getElementById('single-recipient');
+    const contactsPagination = document.getElementById('pagination');
 
-    if (!contactsList || !pagination || !dashboardContent || !singleMessageContent || !recipientSelect) {
+    if (!contactsList || !contactsPagination) {
         console.error('Contacts: Required elements missing!');
         return;
     }
@@ -26,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderContacts() {
         contactsList.innerHTML = '';
-        const start = (currentPage - 1) * contactsPerPage;
+        const start = (currentContactPage - 1) * contactsPerPage;
         const end = start + contactsPerPage;
         const pageContacts = contacts.slice(start, end);
 
@@ -37,54 +34,67 @@ document.addEventListener('DOMContentLoaded', function() {
 
         pageContacts.forEach(contact => {
             const div = document.createElement('div');
-            div.classList.add('list-item', 'd-flex', 'justify-content-between', 'align-items-center');
+            div.style.background = '#1e1e2f';
+            div.style.border = '1px solid #2e2e42';
+            div.style.borderRadius = '12px';
+            div.style.padding = '15px';
+            div.style.marginBottom = '12px';
+            div.style.color = 'white';
+            div.style.display = 'flex';
+            div.style.justifyContent = 'space-between';
+            div.style.alignItems = 'center';
+            div.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+            div.style.transition = 'all 0.3s ease-in-out';
+
+            div.onmouseover = () => {
+                div.style.background = '#2a2a3d';
+                div.style.transform = 'translateY(-2px)';
+                div.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+            };
+            div.onmouseout = () => {
+                div.style.background = '#1e1e2f';
+                div.style.transform = 'translateY(0)';
+                div.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+            };
+
             div.innerHTML = `
                 <div>
-                    <strong>${contact.first_name} ${contact.last_name}</strong>
-                    <small>${contact.email}</small>
+                    <strong>${contact.first_name}</strong>
+                    <strong>${contact.last_name}</strong><br>
+                    <small>${contact.email || contact.phone || ''}</small>
                 </div>
-                <a href="#" class="btn btn-sm message-btn" data-contact-id="${contact.id}">Message</a>
+                <a href="#" class="btn" style="border:1px solid white; color:white; border-radius:8px; padding:4px 10px;">Message</a>
             `;
             contactsList.appendChild(div);
         });
 
-        renderPagination();
+        renderContactPagination();
     }
 
-    contactsList.addEventListener('click', function(e) {
-        if (e.target && e.target.classList.contains('message-btn')) {
-            e.preventDefault();
-            const contactId = e.target.getAttribute('data-contact-id');
-            dashboardContent.style.display = 'none';
-            singleMessageContent.style.display = 'block';
-            recipientSelect.value = contactId;
-        }
-    });
-
-    function renderPagination() {
-        pagination.innerHTML = '';
+    function renderContactPagination() {
+        contactsPagination.innerHTML = '';
         const totalPages = Math.ceil(contacts.length / contactsPerPage);
-        if (totalPages <= 1) return;
+        if(totalPages <= 1) return;
 
         const prevLi = document.createElement('li');
-        prevLi.className = 'page-item ' + (currentPage === 1 ? 'disabled' : '');
+        prevLi.className = 'page-item ' + (currentContactPage===1?'disabled':'');
         prevLi.innerHTML = `<a class="page-link" href="#">Previous</a>`;
-        prevLi.onclick = e => { e.preventDefault(); if(currentPage>1){currentPage--; renderContacts();} };
-        pagination.appendChild(prevLi);
+        prevLi.onclick = e => { e.preventDefault(); if(currentContactPage>1){currentContactPage--; renderContacts();} };
+        contactsPagination.appendChild(prevLi);
 
-        for(let i=1;i<=totalPages;i++){
+        for(let i=1; i<=totalPages; i++){
             const li = document.createElement('li');
-            li.className = 'page-item ' + (i===currentPage?'active':'');
+            li.className = 'page-item ' + (i===currentContactPage?'active':'');
             li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-            li.onclick = e => { e.preventDefault(); currentPage=i; renderContacts(); };
-            pagination.appendChild(li);
+            li.onclick = e => { e.preventDefault(); currentContactPage=i; renderContacts(); };
+            contactsPagination.appendChild(li);
         }
 
         const nextLi = document.createElement('li');
-        nextLi.className = 'page-item ' + (currentPage === totalPages ? 'disabled' : '');
+        nextLi.className = 'page-item ' + (currentContactPage===totalPages?'disabled':'');
         nextLi.innerHTML = `<a class="page-link" href="#">Next</a>`;
-        nextLi.onclick = e => { e.preventDefault(); if(currentPage<totalPages){currentPage++; renderContacts();} };
-        pagination.appendChild(nextLi);
+        nextLi.onclick = e => { e.preventDefault(); if(currentContactPage<totalPages){currentContactPage++; renderContacts();} };
+        contactsPagination.appendChild(nextLi);
     }
 
     fetchContacts();

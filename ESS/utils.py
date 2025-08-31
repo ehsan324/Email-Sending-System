@@ -9,6 +9,7 @@ from User.models import OtpCode
 
 logger = logging.getLogger(__name__)
 
+
 class EmailServiceError(Exception):
     """Raised when email sending fails due to configuration or SMTP errors."""
     pass
@@ -18,6 +19,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.utils import formatdate
 import ssl
+
 
 class EmailSender:
     def __init__(self):
@@ -47,6 +49,7 @@ class EmailSender:
             print(f"SMTP Exception: {type(e).__name__}: {e}")
             raise
 
+
 # utils/email_service.py
 class EmailService:
     @staticmethod
@@ -66,11 +69,10 @@ def send_otp_code(phone_number, code):
 
 def delete_code(object_id):
     expire_at = timezone.timedelta(minutes=1)
-    print (expire_at)
+    print(expire_at)
     if expire_at > timezone.now():
         try:
             OtpCode.objects.get(id=object_id).delete()
             raise f"Deleted OTP code {object_id}"
         except Exception as e:
             raise f"Failed to delete OTP code {object_id}: {str(e)}"
-

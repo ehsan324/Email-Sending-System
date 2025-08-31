@@ -1,7 +1,6 @@
 from django.urls import path
 from . import views
 
-
 app_name = 'Contact'
 urlpatterns = [
     path('create/', views.ContactCreateView.as_view(), name='add-contact'),
@@ -13,4 +12,8 @@ urlpatterns = [
     path('group-list/', views.GroupListView.as_view(), name='group-list'),
     path('group-detail/<int:group_id>/', views.GroupDetailView.as_view(), name='group-detail'),
     path('delete-group/<int:group_id>/', views.DeleteGroupView.as_view(), name='delete-group'),
+
+    # api
+    path('api/contacts/', views.total_contacts),
+    path('api/groups/', views.total_groups),
 ]

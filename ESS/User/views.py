@@ -7,12 +7,10 @@ from .forms import UserRegistrationForm, UserLoginForm, UserVerifyForm
 from django.contrib import messages
 from .models import User, OtpCode
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth import login, logout
 import random
-from utils import send_otp_code, delete_code
-from ESS.settings import LOGIN_REDIRECT_URL
-from django.core.exceptions import ObjectDoesNotExist
+from utils import send_otp_code
 from django.http import JsonResponse
 import json
 
@@ -46,7 +44,7 @@ class BaseVerifyView(View):
                     'redirect': reverse(self.failure_redirect)
                 }, status=400)
             else:
-                messages.error(request, 'Session expired, please start over', 'error')
+                messages.error(request, 'Session expired, please start over', 'daner')
                 return redirect(self.failure_redirect)
 
         form = self.form_class()
@@ -99,18 +97,20 @@ class BaseVerifyView(View):
                 'redirect': reverse(self.failure_redirect)
             }, status=400)
         else:
-            messages.error(request, error_msg, 'error')
+            messages.error(request, error_msg, 'danger')
             return redirect(self.failure_redirect)
 
     def handle_invalid_code(self, request, session_data):
         error_msg = 'Invalid verification code'
+
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            messages.error(request, error_msg, 'danger')
             return JsonResponse({
                 'success': False,
                 'error': error_msg
             }, status=400)
         else:
-            messages.error(request, error_msg, 'error')
+            messages.error(request, error_msg, 'danger')
             return render(request, self.template_name, {
                 'form': self.form_class(),
                 'show_verification': True,
@@ -126,7 +126,7 @@ class BaseVerifyView(View):
                 'redirect': reverse(self.failure_redirect)
             }, status=400)
         else:
-            messages.error(request, error_msg, 'error')
+            messages.error(request, error_msg, 'danger')
             return redirect(self.failure_redirect)
 
     def handle_invalid_form(self, request, form, session_data):
@@ -151,7 +151,7 @@ class BaseVerifyView(View):
                 'error': error_msg
             }, status=500)
         else:
-            messages.error(request, error_msg, 'error')
+            messages.error(request, error_msg, 'danger')
             return redirect(self.failure_redirect)
 
 
@@ -200,6 +200,7 @@ class UserLoginVerifyView(BaseVerifyView):
         else:
             return redirect('home:test')
 
+
 class UserRegistrationView(View):
     form_class = UserRegistrationForm
     template_name = 'home/index.html'
@@ -239,18 +240,11 @@ class UserRegistrationView(View):
 
             OtpCode.delete_expired_codes()
 
-            # اگر درخواست AJAX است، پاسخ JSON برگردان
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'phone': cd['phone_number'],
-                    'notification': f'We sent OTP code to {cd["phone_number"]}'
-                })
-            else:
-                return render(request, self.template_name, {
-                    'show_verification': True,
-                    'phone': cd['phone_number']
-                })
+            messages.success(request, f'We sent OTP code to {cd['phone_number']}', 'success')
+            return render(request, self.template_name, {
+                'show_verification': True,
+                'phone_number': cd['phone_number']
+            })
         except Exception as e:
             return JsonResponse({
                 'success': False,
